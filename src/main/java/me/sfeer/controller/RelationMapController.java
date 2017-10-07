@@ -22,6 +22,11 @@ public class RelationMapController {
         return relationMapService.findRelMap();
     }
 
+    @GetMapping("/get/{id}")
+    public RelationMap get(@PathVariable String id) {
+        return relationMapService.findRelMap(Long.parseLong(id));
+    }
+
     @PostMapping("/add")
     public Result create(@RequestBody Map<String, String> param) {
         RelationMap map = new RelationMap();

@@ -18,6 +18,8 @@ public class RelationMapService {
         return relationMapMapper.findRelMap();
     }
 
+    public RelationMap findRelMap(Long id) { return relationMapMapper.findRelMapById(id); }
+
     public Result createRelMap(RelationMap map) {
         relationMapMapper.createRelMap(map);
         return new Result();
