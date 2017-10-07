@@ -1,0 +1,52 @@
+# log
+logging:
+  # ALL > TRACE > DEBUG > INFO > WARN > ERROR > FATAL > OFF
+  level:
+    root: ERROR
+    # print sql
+    me.sfeer.mapper: ERROR
+
+# server settings
+server:
+  port: 9000
+
+# datasource
+spring:
+  datasource:
+    # jdbc的驱动、连接串、用户名、密码
+    url: jdbc:mysql://192.168.0.87:3306/zabbix?characterEncoding=utf-8&useSSL=false
+    username: root
+    password: root
+    driver-class-name: com.mysql.jdbc.Driver
+    # jndi名，设置后jdbc四个参数将无效
+    # jndi-name:
+    # 初始化sql
+    # schema: classpath:import.sql
+    tomcat:
+      # 最大连接数
+      max-active: 20
+      # 初始化连接数
+      initial-size: 1
+      # 连接池连接用完时，新的连接等待时间，毫秒
+      max-wait: 5000
+      # 连接池最小空闲数
+      min-idle: 1
+      max-idle: 20
+      # 配置间隔多久进行一次检测，检测需关闭的空闲连接，单位是毫秒
+      time-between-eviction-runs-millis: 60000
+      # 检测时，空闲连接存活时间，单位是毫秒
+      min-evictable-idle-time-millis: 300000
+      validation-query: select 1
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+
+mybatis:
+  type-aliases-package: me.sfeer.domain
+  mapper-locations: classpath:mapper/*.xml
+
+zabbix:
+  url: http://192.168.0.78/zabbix/api_jsonrpc.php
+  user: Admin
+  password: zabbix
+
