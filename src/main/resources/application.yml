@@ -15,8 +15,8 @@ spring:
   datasource:
     # jdbc的驱动、连接串、用户名、密码
     url: jdbc:mysql://192.168.0.87:3306/zabbix?characterEncoding=utf-8&useSSL=false
-    username: root
-    password: root
+    username: zabbix
+    password: zabbix
     driver-class-name: com.mysql.jdbc.Driver
     # jndi名，设置后jdbc四个参数将无效
     # jndi-name:
@@ -44,9 +44,4 @@ spring:
 mybatis:
   type-aliases-package: me.sfeer.domain
   mapper-locations: classpath:mapper/*.xml
-
-zabbix:
-  url: http://192.168.0.78/zabbix/api_jsonrpc.php
-  user: Admin
-  password: zabbix
 
