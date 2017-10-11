@@ -14,7 +14,7 @@ buildscript {
 }
 
 apply plugin: 'java'
-// apply plugin: 'war'
+apply plugin: 'war'
 apply plugin: 'org.springframework.boot'
 
 jar {
@@ -34,9 +34,10 @@ repositories {
 }
 
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web")
-    compile("org.mybatis.spring.boot:mybatis-spring-boot-starter:1.3.0")
-    compile("mysql:mysql-connector-java")
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'org.mybatis.spring.boot:mybatis-spring-boot-starter:1.3.0'
+    compile 'mysql:mysql-connector-java'
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 }
 
 compileJava.options.encoding = 'UTF-8'
