@@ -2,9 +2,9 @@
 logging:
   # ALL > TRACE > DEBUG > INFO > WARN > ERROR > FATAL > OFF
   level:
-    root: ERROR
+    root: INFO
     # print sql
-    me.sfeer.mapper: ERROR
+    me.sfeer.mapper: INFO
 
 # server settings
 server:
@@ -44,4 +44,9 @@ spring:
 mybatis:
   type-aliases-package: me.sfeer.domain
   mapper-locations: classpath:mapper/*.xml
+
+zabbix:
+  url: http://192.168.0.78/zabbix/api_jsonrpc.php
+  username: Admin
+  password: zabbix
 
