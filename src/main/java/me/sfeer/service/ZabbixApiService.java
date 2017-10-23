@@ -87,12 +87,15 @@ public class ZabbixApiService {
                 .method("history.get")
                 .paramEntry("itemids", id)
                 .paramEntry("history", 0)
-                .paramEntry("limit", 100)
+                .paramEntry("limit", 1000)
                 .paramEntry("sortorder", "DESC")
                 .paramEntry("sortfield", "clock");
 
-        if(begin != null)
+        if (begin != null)
             req.paramEntry("time_from", begin.getTime() / 1000L);
+
+        if (end != null)
+            req.paramEntry("time_till", end.getTime() / 1000L);
 
         return zabbixApi.call(req.build()).getJSONArray("result");
     }

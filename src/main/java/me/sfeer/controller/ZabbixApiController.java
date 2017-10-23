@@ -49,7 +49,7 @@ public class ZabbixApiController {
     public JSONArray getHistoryData(@RequestParam("itemid") String id,
                                     @RequestParam(value = "begin", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date begin,
                                     @RequestParam(value = "end", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date end) {
-        // TODO begin, end格式化成时间
+        // TODO begin为空时设置默认查询一天
         log.info("time {}", begin.getTime() / 1000L);
         // TODO 根据查询时间间隔判断查询history还是趋势表
         JSONArray s = zabbixApiService.getHistoryData(id, begin, end);
