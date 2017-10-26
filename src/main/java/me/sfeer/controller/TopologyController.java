@@ -2,7 +2,7 @@ package me.sfeer.controller;
 
 import me.sfeer.domain.Topology;
 import me.sfeer.domain.Result;
-import me.sfeer.service.RelationMapService;
+import me.sfeer.service.TopologyService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -12,19 +12,19 @@ import java.util.Map;
 @RestController
 @CrossOrigin
 @RequestMapping("/topo")
-public class RelationMapController {
+public class TopologyController {
 
     @Resource
-    private RelationMapService relationMapService;
+    private TopologyService topologyService;
 
     @GetMapping("/list")
     public List<Topology> list() {
-        return relationMapService.findRelMap();
+        return topologyService.findTopology();
     }
 
     @GetMapping("/get/{id}")
     public Topology get(@PathVariable String id) {
-        return relationMapService.findRelMap(Long.parseLong(id));
+        return topologyService.findTopology(Long.parseLong(id));
     }
 
     @PostMapping("/add")
@@ -35,7 +35,7 @@ public class RelationMapController {
         map.setNodes(param.get("nodes"));
         map.setLinks(param.get("links"));
         map.setAreas(param.get("areas"));
-        return relationMapService.createRelMap(map);
+        return topologyService.createTopology(map);
     }
 
     @PutMapping("/modify/{id}")
@@ -47,6 +47,6 @@ public class RelationMapController {
         map.setNodes(param.get("nodes"));
         map.setLinks(param.get("links"));
         map.setAreas(param.get("areas"));
-        return relationMapService.updateRelMap(map);
+        return topologyService.modifyTopology(map);
     }
 }

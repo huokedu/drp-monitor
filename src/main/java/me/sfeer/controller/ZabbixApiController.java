@@ -1,6 +1,7 @@
 package me.sfeer.controller;
 
 import com.alibaba.fastjson.JSONArray;
+import me.sfeer.domain.Result;
 import me.sfeer.service.ZabbixApiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +24,10 @@ public class ZabbixApiController {
     private static final Logger log = LoggerFactory.getLogger(ZabbixApiController.class);
 
     @PostMapping("/host")
-    public void addHost() {
+    public Result addHost(@RequestBody Map<String, String> param) {
         // todo 添加监控对象，返回zabbix添加结果
         // todo zabbix添加成功后，将rss_uuid和hostid的关联关系保存
+        return null;
     }
 
     // 获取主机的最新监控项值
