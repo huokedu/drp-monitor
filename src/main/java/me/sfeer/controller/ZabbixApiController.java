@@ -27,7 +27,7 @@ public class ZabbixApiController {
     public Result addHost(@RequestBody Map<String, String> param) {
         // todo 添加监控对象，返回zabbix添加结果
         // todo zabbix添加成功后，将rss_uuid和hostid的关联关系保存
-        return null;
+        return zabbixApiService.createHost();
     }
 
     // 获取主机的最新监控项值

@@ -7,6 +7,7 @@ import io.github.hengyunabc.zabbix.api.Request;
 import io.github.hengyunabc.zabbix.api.RequestBuilder;
 import io.github.hengyunabc.zabbix.api.ZabbixApi;
 import jdk.nashorn.internal.parser.JSONParser;
+import me.sfeer.domain.Result;
 import me.sfeer.mapper.ZabbixApiMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,36 @@ public class ZabbixApiService {
         zabbixApi = new DefaultZabbixApi(url);
         zabbixApi.init();
         zabbixApi.login(username, password);
+    }
+
+    public Result createHost() {
+        initZabbixApi();
+
+        JSONObject inter = new JSONObject();
+        inter.put("type", 1);
+        inter.put("main", 1);
+        inter.put("useip", 1);
+        inter.put("ip", "192.168.0.87");
+        inter.put("dns", "");
+        inter.put("port", "10050");
+        JSONArray interfaces = new JSONArray();
+        interfaces.add(inter);
+
+        RequestBuilder req = RequestBuilder.newBuilder()
+                .method("host.create")
+                .paramEntry("host", "test_host_name")
+                .paramEntry("interfaces", interfaces)
+                .paramEntry("groups", JSONArray.parse("[{\"groupid\":\"15\"}]"))
+                .paramEntry("templates", JSONArray.parse("[{\"templateid\":\"10001\"}]"));
+
+        JSONObject result = zabbixApi.call(req.build());
+
+        log.info("API, {}", zabbixApi.apiVersion());
+        log.info("返回结果：{}", result.toJSONString());
+        // 返回结果：{"id":2,"jsonrpc":"2.0","result":{"hostids":["10413"]}}
+        // todo 成功后插入关系
+
+        return new Result();
     }
 
     public Map<String, String> getHostData(String id) {
