@@ -1,8 +1,9 @@
 package me.sfeer.domain;
 
-public class RelationMap {
+public class Topology {
 
     private Long id;
+    private String rss_uuid;
     private String name;
     private String group;
     private String nodes;
@@ -15,6 +16,14 @@ public class RelationMap {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getRss_uuid() {
+        return rss_uuid;
+    }
+
+    public void setRss_uuid(String rss_uuid) {
+        this.rss_uuid = rss_uuid;
     }
 
     public String getName() {
@@ -59,8 +68,9 @@ public class RelationMap {
 
     @Override
     public String toString() {
-        return "RelationMap{" +
+        return "Topology{" +
                 "id=" + id +
+                ", rss_uuid='" + rss_uuid + '\'' +
                 ", name='" + name + '\'' +
                 ", group='" + group + '\'' +
                 ", nodes='" + nodes + '\'' +

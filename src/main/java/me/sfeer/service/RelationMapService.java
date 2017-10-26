@@ -1,8 +1,8 @@
 package me.sfeer.service;
 
-import me.sfeer.domain.RelationMap;
+import me.sfeer.domain.Topology;
 import me.sfeer.domain.Result;
-import me.sfeer.mapper.RelationMapMapper;
+import me.sfeer.mapper.TopologyMapper;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -12,20 +12,20 @@ import java.util.List;
 public class RelationMapService {
 
     @Resource
-    private RelationMapMapper relationMapMapper;
+    private TopologyMapper relationMapMapper;
 
-    public List<RelationMap> findRelMap() {
+    public List<Topology> findRelMap() {
         return relationMapMapper.findRelMap();
     }
 
-    public RelationMap findRelMap(Long id) { return relationMapMapper.findRelMapById(id); }
+    public Topology findRelMap(Long id) { return relationMapMapper.findRelMapById(id); }
 
-    public Result createRelMap(RelationMap map) {
+    public Result createRelMap(Topology map) {
         relationMapMapper.createRelMap(map);
         return new Result();
     }
 
-    public Result updateRelMap(RelationMap map) {
+    public Result updateRelMap(Topology map) {
         relationMapMapper.updateRelMap(map);
         return new Result();
     }

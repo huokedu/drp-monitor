@@ -22,6 +22,12 @@ public class ZabbixApiController {
 
     private static final Logger log = LoggerFactory.getLogger(ZabbixApiController.class);
 
+    @PostMapping("/host")
+    public void addHost() {
+        // todo 添加监控对象，返回zabbix添加结果
+        // todo zabbix添加成功后，将rss_uuid和hostid的关联关系保存
+    }
+
     // 获取主机的最新监控项值
     @GetMapping("/latestdata")
     public Map<String, String> getHostData(@RequestParam("hostid") String id) {
