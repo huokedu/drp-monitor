@@ -1,5 +1,7 @@
 package me.sfeer.mapper;
 
+import me.sfeer.domain.Host;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -14,4 +16,7 @@ public interface ZabbixApiMapper {
 
     @Select("call latest_data(#{hostid})")
     List<Map<String, Object>> selectItemByHostId(@Param("hostid") String hostid);
+
+    @Insert("insert into drp_rm_monitor(rss_uuid,hostid) values (#{},#{})")
+    Long insertRssRelation(Host host);
 }
