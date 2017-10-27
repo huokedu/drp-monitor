@@ -17,6 +17,6 @@ public interface ZabbixApiMapper {
     @Select("call latest_data(#{hostid})")
     List<Map<String, Object>> selectItemByHostId(@Param("hostid") String hostid);
 
-    @Insert("insert into drp_rm_monitor(rss_uuid,hostid) values (#{},#{})")
-    Long insertRssRelation(Host host);
+    @Insert("insert into drp_rm_monitor(rss_uuid,hostid) values (#{rssId},#{id})")
+    void insertRssRelation(Host host);
 }

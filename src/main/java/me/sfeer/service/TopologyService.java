@@ -19,7 +19,7 @@ public class TopologyService {
     }
 
     public List<Topology> findTopologyByRss(String uuid) {
-        return topologyMapper.selectTopologyByUuid(uuid);
+        return topologyMapper.selectTopologyByRss(uuid);
     }
 
     public Topology findTopology(Long id) {

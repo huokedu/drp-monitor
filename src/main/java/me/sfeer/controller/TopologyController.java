@@ -22,6 +22,11 @@ public class TopologyController {
         return topologyService.findTopology();
     }
 
+    @GetMapping("/list/{uuid}")
+    public List<Topology> listByRss(@PathVariable String uuid) {
+        return topologyService.findTopologyByRss(uuid);
+    }
+
     @GetMapping("/get/{id}")
     public Topology get(@PathVariable String id) {
         return topologyService.findTopology(Long.parseLong(id));
@@ -29,24 +34,26 @@ public class TopologyController {
 
     @PostMapping("/add")
     public Result create(@RequestBody Map<String, String> param) {
-        Topology map = new Topology();
-        map.setName(param.get("name"));
-        map.setGroup(param.get("group"));
-        map.setNodes(param.get("nodes"));
-        map.setLinks(param.get("links"));
-        map.setAreas(param.get("areas"));
-        return topologyService.createTopology(map);
+        Topology topo = new Topology();
+        topo.setName(param.get("name"));
+        topo.setGroup(param.get("group"));
+        topo.setRssId(param.get("rss_uuid"));
+        topo.setNodes(param.get("nodes"));
+        topo.setLinks(param.get("links"));
+        topo.setAreas(param.get("areas"));
+        return topologyService.createTopology(topo);
     }
 
     @PutMapping("/modify/{id}")
     public Result update(@PathVariable String id, @RequestBody Map<String, String> param) {
-        Topology map = new Topology();
-        map.setId(Long.parseLong(id));
-        map.setName(param.get("name"));
-        map.setGroup(param.get("group"));
-        map.setNodes(param.get("nodes"));
-        map.setLinks(param.get("links"));
-        map.setAreas(param.get("areas"));
-        return topologyService.modifyTopology(map);
+        Topology topo = new Topology();
+        topo.setId(Long.parseLong(id));
+        topo.setName(param.get("name"));
+        topo.setGroup(param.get("group"));
+        topo.setRssId(param.get("rss_uuid"));
+        topo.setNodes(param.get("nodes"));
+        topo.setLinks(param.get("links"));
+        topo.setAreas(param.get("areas"));
+        return topologyService.modifyTopology(topo);
     }
 }

@@ -63,13 +63,16 @@ public class ZabbixApiService {
                 .paramEntry("interfaces", interfaces)
                 .paramEntry("groups", JSONArray.parse("[{\"groupid\":\"" + host.getGroupId() + "\"}]"))
                 .paramEntry("templates", JSONArray.parse("[{\"templateid\":\"" + host.getTemplateId() + "\"}]"));
-        JSONObject result = zabbixApi.call(req.build());
-
-        log.info("API, {}", zabbixApi.apiVersion());
-        log.info("返回结果：{}", result.toJSONString());
-        // todo 判断是否出错
-        host.setId(Long.parseLong(result.getJSONObject("result").getJSONArray("hostids").get(0).toString()));
-        zabbixApiMapper.insertRssRelation(host);
+        JSONObject res = zabbixApi.call(req.build());
+        JSONObject error = res.getJSONObject("error");
+        log.info("返回结果：{}", res.getJSONObject("error"));
+        if(error != null) {
+            return new Result(error.getString("code"), error.getString("data"));
+        } else {
+            host.setId(Long.parseLong(res.getJSONObject("result").getJSONArray("hostids").get(0).toString()));
+            log.info("保存监控对象：{}", host.toString());
+            zabbixApiMapper.insertRssRelation(host);
+        }
         return new Result();
     }
 
