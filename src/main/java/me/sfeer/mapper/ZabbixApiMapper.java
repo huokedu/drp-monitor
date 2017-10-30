@@ -14,7 +14,7 @@ import java.util.Map;
 @Mapper
 public interface ZabbixApiMapper {
 
-    @Select("call latest_data(#{hostid})")
+    @Select("call zabbix.latest_data(#{hostid})")
     List<Map<String, Object>> selectItemByHostId(@Param("hostid") String hostid);
 
     @Insert("insert into drp_rm_monitor(rss_uuid,hostid) values (#{rssId},#{id})")
