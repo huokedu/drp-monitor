@@ -1,5 +1,6 @@
 package me.sfeer.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import me.sfeer.domain.Topology;
 import me.sfeer.domain.Result;
 import me.sfeer.service.TopologyService;
@@ -42,6 +43,11 @@ public class TopologyController {
         topo.setLinks(param.get("links"));
         topo.setAreas(param.get("areas"));
         return topologyService.createTopology(topo);
+    }
+
+    @GetMapping("ctree")
+    public JSONArray cateList() {
+        return topologyService.cateTree();
     }
 
     @PutMapping("/modify/{id}")
