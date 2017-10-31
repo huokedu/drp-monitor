@@ -17,7 +17,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Component
 public class DynamicTask implements SchedulingConfigurer {
@@ -42,7 +41,7 @@ public class DynamicTask implements SchedulingConfigurer {
 
         private DrpShell shell;
 
-        public Rs(DrpShell shell) {
+        Rs(DrpShell shell) {
             this.shell = shell;
         }
 
@@ -55,7 +54,7 @@ public class DynamicTask implements SchedulingConfigurer {
 
         private DrpShell shell;
 
-        public Tg(DrpShell shell) {
+        Tg(DrpShell shell) {
             this.shell = shell;
         }
 

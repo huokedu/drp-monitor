@@ -3,10 +3,8 @@ package me.sfeer.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.github.hengyunabc.zabbix.api.DefaultZabbixApi;
-import io.github.hengyunabc.zabbix.api.Request;
 import io.github.hengyunabc.zabbix.api.RequestBuilder;
 import io.github.hengyunabc.zabbix.api.ZabbixApi;
-import jdk.nashorn.internal.parser.JSONParser;
 import me.sfeer.domain.Host;
 import me.sfeer.domain.Result;
 import me.sfeer.mapper.ZabbixApiMapper;
@@ -18,7 +16,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service

@@ -18,9 +18,9 @@ public interface TopologyMapper {
     @Select("select * from drp_rm_topology where id=#{id}")
     Topology selectTopologyById(@Param("id") Long id);
 
-    @Insert("insert into drp_rm_topology(rss_uuid,name,`group`,nodes,links,areas) values (#{rssId},#{name},#{group},#{nodes},#{links},#{areas})")
+    @Insert("insert into drp_rm_topology(name,`group`,nodes,links,areas) values (#{name},#{group},#{nodes},#{links},#{areas})")
     void insertTopology(Topology topo);
 
-    @Update("update drp_rm_topology set rss_uuid=#{rssId},name=#{name},`group`=#{group},nodes=#{nodes},links=#{links},areas=#{areas} where id=#{id}")
+    @Update("update drp_rm_topology set name=#{name},`group`=#{group},nodes=#{nodes},links=#{links},areas=#{areas} where id=#{id}")
     void updateTopology(Topology topo);
 }
