@@ -24,11 +24,11 @@ public class TopologyController {
     public Map<String, Object> list(@RequestParam Map<String, String> param) {
         PageHelper.startPage(Integer.parseInt(param.get("pageNum")), Integer.parseInt(param.get("pageSize")));
         List<Topology> list = topologyService.findTopology();
-        PageInfo page = new PageInfo(list);
-        return new HashMap<String, Object>() {{
-            put("total", page.getTotal());
-            put("data", list);
-        }};
+        PageInfo<Topology> page = new PageInfo<>(list);
+        Map<String, Object> res = new HashMap<>();
+        res.put("total", page.getTotal());
+        res.put("data", list);
+        return res;
     }
 
     // TODO 需要修改成多对多
@@ -47,7 +47,6 @@ public class TopologyController {
         Topology topo = new Topology();
         topo.setName(param.get("name"));
         topo.setGroup(param.get("group"));
-        topo.setRssId(param.get("rss_uuid"));
         topo.setNodes(param.get("nodes"));
         topo.setLinks(param.get("links"));
         topo.setAreas(param.get("areas"));
@@ -60,7 +59,6 @@ public class TopologyController {
         topo.setId(Long.parseLong(id));
         topo.setName(param.get("name"));
         topo.setGroup(param.get("group"));
-        topo.setRssId(param.get("rss_uuid"));
         topo.setNodes(param.get("nodes"));
         topo.setLinks(param.get("links"));
         topo.setAreas(param.get("areas"));

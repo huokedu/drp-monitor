@@ -6,6 +6,7 @@ import me.sfeer.service.DrpShellService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.Trigger;
+import org.springframework.scheduling.TriggerContext;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.CronTrigger;
@@ -37,22 +38,41 @@ public class DynamicTask implements SchedulingConfigurer {
         return new Result();
     }
 
+    private class Rs implements Runnable {
+
+        private DrpShell shell;
+
+        public Rs(DrpShell shell) {
+            this.shell = shell;
+        }
+
+        public void run() {
+            log.info("脚本{},当前时间：{}", shell.getContent(), dateFormat.format(new Date()));
+        }
+    }
+
+    private class Tg implements Trigger {
+
+        private DrpShell shell;
+
+        public Tg(DrpShell shell) {
+            this.shell = shell;
+        }
+
+        public Date nextExecutionTime(TriggerContext triggerContext) {
+            CronTrigger trigger = new CronTrigger(shell.getCron());
+            return trigger.nextExecutionTime(triggerContext);
+        }
+    }
+
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
         // 初始化读取数据库中所有脚本
         for (DrpShell shell : drpShellService.findAllDrpShell())
             drp_shell.put(shell.getId().toString(), shell);
         Map<Runnable, Trigger> tasks = new HashMap<>();
-        for (String key : drp_shell.keySet()) {
-            DrpShell shell = drp_shell.get(key);
-            tasks.put(
-                    () -> log.info("脚本{},当前时间：{}", shell.getContent(), dateFormat.format(new Date())),
-                    triggerContext -> {
-                        CronTrigger trigger = new CronTrigger(shell.getCron());
-                        return trigger.nextExecutionTime(triggerContext);
-                    }
-            );
-        }
+        for (String key : drp_shell.keySet())
+            tasks.put(new Rs(drp_shell.get(key)), new Tg(drp_shell.get(key)));
         taskRegistrar.setTriggerTasks(tasks);
     }
 }
