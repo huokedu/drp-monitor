@@ -3,7 +3,6 @@ package me.sfeer.domain;
 public class Topology {
 
     private Long id;
-    private String rssId;
     private String name;
     private String group;
     private String nodes;
@@ -16,14 +15,6 @@ public class Topology {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getRssId() {
-        return rssId;
-    }
-
-    public void setRssId(String rssId) {
-        this.rssId = rssId;
     }
 
     public String getName() {
@@ -70,7 +61,6 @@ public class Topology {
     public String toString() {
         return "Topology{" +
                 "id=" + id +
-                ", rssId='" + rssId + '\'' +
                 ", name='" + name + '\'' +
                 ", group='" + group + '\'' +
                 ", nodes='" + nodes + '\'' +

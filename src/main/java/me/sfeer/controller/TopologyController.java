@@ -1,12 +1,14 @@
 package me.sfeer.controller;
 
-import com.alibaba.fastjson.JSONArray;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import me.sfeer.domain.Topology;
 import me.sfeer.domain.Result;
 import me.sfeer.service.TopologyService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,10 +21,17 @@ public class TopologyController {
     private TopologyService topologyService;
 
     @GetMapping("/list")
-    public List<Topology> list() {
-        return topologyService.findTopology();
+    public Map<String, Object> list(@RequestParam Map<String, String> param) {
+        PageHelper.startPage(Integer.parseInt(param.get("pageNum")), Integer.parseInt(param.get("pageSize")));
+        List<Topology> list = topologyService.findTopology();
+        PageInfo page = new PageInfo(list);
+        return new HashMap<String, Object>() {{
+            put("total", page.getTotal());
+            put("data", list);
+        }};
     }
 
+    // TODO 需要修改成多对多
     @GetMapping("/list/{uuid}")
     public List<Topology> listByRss(@PathVariable String uuid) {
         return topologyService.findTopologyByRss(uuid);
@@ -43,11 +52,6 @@ public class TopologyController {
         topo.setLinks(param.get("links"));
         topo.setAreas(param.get("areas"));
         return topologyService.createTopology(topo);
-    }
-
-    @GetMapping("ctree")
-    public JSONArray cateList() {
-        return topologyService.cateTree();
     }
 
     @PutMapping("/modify/{id}")

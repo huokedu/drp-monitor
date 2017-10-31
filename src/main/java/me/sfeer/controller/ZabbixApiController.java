@@ -10,8 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 
 @RestController
@@ -23,6 +22,22 @@ public class ZabbixApiController {
     private ZabbixApiService zabbixApiService;
 
     private static final Logger log = LoggerFactory.getLogger(ZabbixApiController.class);
+
+    private Map<String, Object> pageHelper(JSONArray s, int num, int size) {
+        Map<String, Object> res = new HashMap<>();
+        int from = size * (num - 1);
+        int to = size * num;
+        int total = s.size();
+        res.put("total", total);
+        if (from < total)
+            if (to > total)
+                res.put("data", s.subList(from, total));
+            else
+                res.put("data", s.subList(from, to));
+        else
+            res.put("data", new ArrayList());
+        return res;
+    }
 
     @PostMapping("/host")
     public Result addHost(@RequestBody Map<String, String> param) {
@@ -46,18 +61,18 @@ public class ZabbixApiController {
 
     // 模版列表
     @GetMapping("/templates")
-    public JSONArray getTemplateList(@RequestParam(value = "name", required = false) String name) {
-        JSONArray s = zabbixApiService.getTemplateList(name);
-        log.info("{}", s.size());
-        return s;
+    public Map<String, Object> getTemplateList(@RequestParam Map<String, String> param) {
+        return pageHelper(zabbixApiService.getTemplateList(param.get("name")),
+                Integer.parseInt(param.get("pageNum")),
+                Integer.parseInt(param.get("pageSize")));
     }
 
     // 主机列表
     @GetMapping("/hosts")
-    public JSONArray getHostList(@RequestParam(value = "name", required = false) String name) {
-        JSONArray s = zabbixApiService.getHostList(name);
-        log.info("{}", s.size());
-        return s;
+    public Map<String, Object> getHostList(@RequestParam Map<String, String> param) {
+        return pageHelper(zabbixApiService.getHostList(param.get("name")),
+                Integer.parseInt(param.get("pageNum")),
+                Integer.parseInt(param.get("pageSize")));
     }
 
     // 历史数据 49170

@@ -4,7 +4,7 @@ logging:
   level:
     root: INFO
     # print sql
-    me.sfeer.mapper: INFO
+    me.sfeer.mapper: DEBUG
 
 # server settings
 server:
