@@ -15,8 +15,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class ZabbixApiService {
@@ -73,14 +71,14 @@ public class ZabbixApiService {
         return new Result();
     }
 
-    public Map<String, String> getHostData(String id) {
-        Map<String, String> items = new HashMap<>();
-        for (Map<String, Object> item : zabbixApiMapper.selectItemByHostId(id))
-            items.put(item.get("key").toString(), item.get("value").toString());
+    public JSONObject getHostData(String id) {
+        JSONObject items = new JSONObject();
+        for (JSONObject item : zabbixApiMapper.selectItemByHostId(id))
+            items.put(item.getString("key"), item.getString("value"));
         return items;
     }
 
-    public JSONArray getTemplateList(String name) {
+    public JSONArray getTemplates(String name) {
         initZabbixApi();
         RequestBuilder req = RequestBuilder.newBuilder()
                 .method("template.get")
@@ -95,7 +93,16 @@ public class ZabbixApiService {
         return zabbixApi.call(req.build()).getJSONArray("result");
     }
 
-    public JSONArray getHostList(String name) {
+    public JSONArray getTemplateList() {
+        initZabbixApi();
+        RequestBuilder req = RequestBuilder.newBuilder()
+                .method("template.get")
+                .paramEntry("output", new String[]{"templateid", "name"})
+                .paramEntry("sortfield", "name");
+        return zabbixApi.call(req.build()).getJSONArray("result");
+    }
+
+    public JSONArray getHosts(String name) {
         initZabbixApi();
         RequestBuilder req = RequestBuilder.newBuilder()
                 .method("host.get")
@@ -127,6 +134,15 @@ public class ZabbixApiService {
         if (end != null)
             req.paramEntry("time_till", end.getTime() / 1000L);
 
+        return zabbixApi.call(req.build()).getJSONArray("result");
+    }
+
+    public JSONArray getHostGroupList() {
+        initZabbixApi();
+        RequestBuilder req = RequestBuilder.newBuilder()
+                .method("hostgroup.get")
+                .paramEntry("output", new String[]{"groupid", "name"})
+                .paramEntry("sortfield", "name");
         return zabbixApi.call(req.build()).getJSONArray("result");
     }
 }

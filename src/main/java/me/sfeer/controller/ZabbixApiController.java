@@ -1,6 +1,7 @@
 package me.sfeer.controller;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import me.sfeer.domain.Host;
 import me.sfeer.domain.Result;
 import me.sfeer.service.ZabbixApiService;
@@ -10,7 +11,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.Date;
+import java.util.Map;
 
 
 @RestController
@@ -23,8 +25,8 @@ public class ZabbixApiController {
 
     private static final Logger log = LoggerFactory.getLogger(ZabbixApiController.class);
 
-    private Map<String, Object> pageHelper(JSONArray s, int num, int size) {
-        Map<String, Object> res = new HashMap<>();
+    private JSONObject pageHelper(JSONArray s, int num, int size) {
+        JSONObject res = new JSONObject();
         int from = size * (num - 1);
         int to = size * num;
         int total = s.size();
@@ -35,7 +37,7 @@ public class ZabbixApiController {
             else
                 res.put("data", s.subList(from, to));
         else
-            res.put("data", new ArrayList());
+            res.put("data", new JSONArray());
         return res;
     }
 
@@ -55,22 +57,33 @@ public class ZabbixApiController {
 
     // 获取主机的最新监控项值
     @GetMapping("/latestdata")
-    public Map<String, String> getHostData(@RequestParam("hostid") String id) {
+    public JSONObject getHostData(@RequestParam("hostid") String id) {
         return zabbixApiService.getHostData(id);
     }
 
     // 模版列表
     @GetMapping("/templates")
-    public Map<String, Object> getTemplateList(@RequestParam Map<String, String> param) {
-        return pageHelper(zabbixApiService.getTemplateList(param.get("name")),
+    public JSONObject getTemplates(@RequestParam Map<String, String> param) {
+        return pageHelper(zabbixApiService.getTemplates(param.get("name")),
                 Integer.parseInt(param.get("pageNum")),
                 Integer.parseInt(param.get("pageSize")));
     }
 
+    // 模版下拉
+    @GetMapping("/template/list")
+    public JSONArray getTemplateList() {
+        return zabbixApiService.getTemplateList();
+    }
+
+    @GetMapping("/group/list")
+    public JSONArray getHostGroupList() {
+        return zabbixApiService.getHostGroupList();
+    }
+
     // 主机列表
     @GetMapping("/hosts")
-    public Map<String, Object> getHostList(@RequestParam Map<String, String> param) {
-        return pageHelper(zabbixApiService.getHostList(param.get("name")),
+    public JSONObject getHosts(@RequestParam Map<String, String> param) {
+        return pageHelper(zabbixApiService.getHosts(param.get("name")),
                 Integer.parseInt(param.get("pageNum")),
                 Integer.parseInt(param.get("pageSize")));
     }
