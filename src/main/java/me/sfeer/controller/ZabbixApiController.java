@@ -88,7 +88,8 @@ public class ZabbixApiController {
                 Integer.parseInt(param.get("pageSize")));
     }
 
-    // 历史数据 49170
+    // 历史数据
+    // http://127.0.0.1:9000/zabbix/history?itemid=23295&begin=2016-10-01%2000:00:00
     @GetMapping("/history")
     public JSONArray getHistoryData(@RequestParam("itemid") String id,
                                     @RequestParam(value = "begin", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date begin,
