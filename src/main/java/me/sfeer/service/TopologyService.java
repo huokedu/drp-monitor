@@ -1,5 +1,6 @@
 package me.sfeer.service;
 
+import com.alibaba.fastjson.JSONObject;
 import me.sfeer.domain.Topology;
 import me.sfeer.domain.Result;
 import me.sfeer.mapper.TopologyMapper;
@@ -14,11 +15,11 @@ public class TopologyService {
     @Resource
     private TopologyMapper topologyMapper;
 
-    public List<Topology> findTopology() {
+    public List<JSONObject> findTopology() {
         return topologyMapper.selectTopology();
     }
 
-    public List<Topology> findTopologyByRss(String uuid) {
+    public List<JSONObject> findTopologyByRss(String uuid) {
         return topologyMapper.selectTopologyByRss(uuid);
     }
 

@@ -1,5 +1,6 @@
 package me.sfeer.mapper;
 
+import com.alibaba.fastjson.JSONObject;
 import me.sfeer.domain.Topology;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Component;
@@ -10,10 +11,10 @@ import java.util.List;
 @Mapper
 public interface TopologyMapper {
     @Select("select id,name,`group` from drp_rm_topology")
-    List<Topology> selectTopology();
+    List<JSONObject> selectTopology();
 
-    @Select("select id,name,`group` from drp_rm_topology where rss_uuid=#{uuid}")
-    List<Topology> selectTopologyByRss(@Param("uuid") String uuid);
+    @Select("select a.id, a.name, a.`group` from drp_rm_topology a, drp_rm_rss_topology b where a.id=b.topoid and b.rss_uuid=#{uuid}")
+    List<JSONObject> selectTopologyByRss(@Param("uuid") String uuid);
 
     @Select("select * from drp_rm_topology where id=#{id}")
     Topology selectTopologyById(@Param("id") Long id);

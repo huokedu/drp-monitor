@@ -1,5 +1,6 @@
 package me.sfeer.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import me.sfeer.domain.Topology;
@@ -20,20 +21,20 @@ public class TopologyController {
     @Resource
     private TopologyService topologyService;
 
+    // 下拉框使用
     @GetMapping("/list")
     public Map<String, Object> list(@RequestParam Map<String, String> param) {
         PageHelper.startPage(Integer.parseInt(param.get("pageNum")), Integer.parseInt(param.get("pageSize")));
-        List<Topology> list = topologyService.findTopology();
-        PageInfo<Topology> page = new PageInfo<>(list);
+        List<JSONObject> list = topologyService.findTopology();
+        PageInfo<JSONObject> page = new PageInfo<>(list);
         Map<String, Object> res = new HashMap<>();
         res.put("total", page.getTotal());
         res.put("data", list);
         return res;
     }
 
-    // TODO 需要修改成多对多
     @GetMapping("/list/{uuid}")
-    public List<Topology> listByRss(@PathVariable String uuid) {
+    public List<JSONObject> listByRss(@PathVariable String uuid) {
         return topologyService.findTopologyByRss(uuid);
     }
 
