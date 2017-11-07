@@ -61,7 +61,7 @@ public class ZabbixApiService {
         JSONObject res = zabbixApi.call(req.build());
         JSONObject error = res.getJSONObject("error");
         log.info("返回结果：{}", res.getJSONObject("error"));
-        if(error != null) {
+        if (error != null) {
             return new Result(error.getString("code"), error.getString("data"));
         } else {
             host.setId(Long.parseLong(res.getJSONObject("result").getJSONArray("hostids").get(0).toString()));
@@ -124,7 +124,7 @@ public class ZabbixApiService {
                 .method("history.get")
                 .paramEntry("itemids", id)
                 .paramEntry("history", 0)
-                .paramEntry("limit", 1000)
+                //.paramEntry("limit", 1000)
                 .paramEntry("sortorder", "DESC")
                 .paramEntry("sortfield", "clock");
 
