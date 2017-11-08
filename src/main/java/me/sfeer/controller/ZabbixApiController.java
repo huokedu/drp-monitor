@@ -89,16 +89,13 @@ public class ZabbixApiController {
     }
 
     // 历史数据
-    // http://127.0.0.1:9000/zabbix/history?itemid=23295&begin=2016-10-01%2000:00:00
     @GetMapping("/history")
     public JSONArray getHistoryData(@RequestParam("itemid") String id,
-                                    @RequestParam(value = "begin", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date begin,
-                                    @RequestParam(value = "end", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date end) {
-        // TODO begin为空时设置默认查询一天
-        log.info("time {}", begin.getTime() / 1000L);
+                                    @RequestParam(value = "begin", required = false) Integer begin,
+                                    @RequestParam(value = "end", required = false) Integer end) {
         // TODO 根据查询时间间隔判断查询history还是趋势表
         JSONArray s = zabbixApiService.getHistoryData(id, begin, end);
-        log.info("{}", s.size());
+        log.info("log#1 {},{},{}", begin, end, s.size());
         return s;
     }
 
