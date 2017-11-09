@@ -72,7 +72,6 @@ public class ZabbixApiService {
 
     public JSONObject getHostData(String id) {
         initZabbixApi();
-        initZabbixApi();
         RequestBuilder req = RequestBuilder.newBuilder()
                 .method("item.get")
                 .paramEntry("output", new String[]{"key_", "lastvalue"})
