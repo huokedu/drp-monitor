@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Date;
 
 @Service
 public class ZabbixApiService {
@@ -72,10 +71,19 @@ public class ZabbixApiService {
     }
 
     public JSONObject getHostData(String id) {
-        JSONObject items = new JSONObject();
-        for (JSONObject item : zabbixApiMapper.selectItemByHostId(id))
-            items.put(item.getString("key"), item.getString("value"));
-        return items;
+        initZabbixApi();
+        initZabbixApi();
+        RequestBuilder req = RequestBuilder.newBuilder()
+                .method("item.get")
+                .paramEntry("output", new String[]{"key_", "lastvalue"})
+                .paramEntry("hostids", id);
+        JSONArray arr = zabbixApi.call(req.build()).getJSONArray("result");
+        JSONObject res = new JSONObject();
+        for (int i = 0; i < arr.size(); i++) {
+            JSONObject item = arr.getJSONObject(i);
+            res.put(item.getString("key_"), item.getString("lastvalue"));
+        }
+        return res;
     }
 
     public JSONArray getTemplates(String name) {
@@ -124,7 +132,6 @@ public class ZabbixApiService {
                 .method("history.get")
                 .paramEntry("itemids", id)
                 .paramEntry("history", 0)
-                //.paramEntry("limit", 1000)
                 .paramEntry("sortorder", "DESC")
                 .paramEntry("sortfield", "clock");
 
@@ -142,6 +149,36 @@ public class ZabbixApiService {
         RequestBuilder req = RequestBuilder.newBuilder()
                 .method("hostgroup.get")
                 .paramEntry("output", new String[]{"groupid", "name"})
+                .paramEntry("sortfield", "name");
+        return zabbixApi.call(req.build()).getJSONArray("result");
+    }
+
+    public JSONArray getGraphList(String id) {
+        initZabbixApi();
+        RequestBuilder req = RequestBuilder.newBuilder()
+                .method("graph.get")
+                .paramEntry("output", new String[]{"graphid", "name"})
+                .paramEntry("hostids", id)
+                .paramEntry("sortfield", "name");
+        return zabbixApi.call(req.build()).getJSONArray("result");
+    }
+
+    public JSONArray getItemsByGraph(String id) {
+        initZabbixApi();
+        RequestBuilder req = RequestBuilder.newBuilder()
+                .method("item.get")
+                .paramEntry("output", new String[]{"itemid", "key_", "value_type", "units"})
+                .paramEntry("groupids", id)
+                .paramEntry("sortfield", "name");
+        return zabbixApi.call(req.build()).getJSONArray("result");
+    }
+
+    public JSONArray getHostList(String id) {
+        initZabbixApi();
+        RequestBuilder req = RequestBuilder.newBuilder()
+                .method("host.get")
+                .paramEntry("output", new String[]{"hostid", "name"})
+                .paramEntry("groupids", id)
                 .paramEntry("sortfield", "name");
         return zabbixApi.call(req.build()).getJSONArray("result");
     }

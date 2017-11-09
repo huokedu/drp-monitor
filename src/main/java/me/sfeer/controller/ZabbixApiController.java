@@ -75,9 +75,16 @@ public class ZabbixApiController {
         return zabbixApiService.getTemplateList();
     }
 
+    // 分组下拉
     @GetMapping("/group/list")
     public JSONArray getHostGroupList() {
         return zabbixApiService.getHostGroupList();
+    }
+
+    // 主机下拉
+    @GetMapping("/host/list")
+    public JSONArray getHostList(@RequestParam("groupid") String id) {
+        return zabbixApiService.getHostList(id);
     }
 
     // 主机列表
@@ -86,6 +93,18 @@ public class ZabbixApiController {
         return pageHelper(zabbixApiService.getHosts(param.get("name")),
                 Integer.parseInt(param.get("pageNum")),
                 Integer.parseInt(param.get("pageSize")));
+    }
+
+    // 图形下拉
+    @GetMapping("/graph/list")
+    public JSONArray getGraphList(@RequestParam("hostid") String id) {
+        return zabbixApiService.getGraphList(id);
+    }
+
+    // 图形包含监控项
+    @GetMapping("/items")
+    public JSONArray getItems(@RequestParam("graphid") String id) {
+        return zabbixApiService.getItemsByGraph(id);
     }
 
     // 历史数据
