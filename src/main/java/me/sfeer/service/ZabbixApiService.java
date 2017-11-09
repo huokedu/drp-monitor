@@ -167,7 +167,7 @@ public class ZabbixApiService {
         RequestBuilder req = RequestBuilder.newBuilder()
                 .method("item.get")
                 .paramEntry("output", new String[]{"itemid", "key_", "value_type", "units"})
-                .paramEntry("groupids", id)
+                .paramEntry("graphids", id)
                 .paramEntry("sortfield", "name");
         return zabbixApi.call(req.build()).getJSONArray("result");
     }
