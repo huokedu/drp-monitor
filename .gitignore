@@ -24,5 +24,5 @@ hs_err_pid*
 .gradle/
 build/
 src/test/
-/drp-monitor.iml
 out/production/resources/
+drp-monitor.iml
