@@ -110,12 +110,10 @@ public class ZabbixApiController {
     // 历史数据
     @GetMapping("/history")
     public JSONArray getHistoryData(@RequestParam("itemids") String ids,
+                                    @RequestParam("type") Integer type,
                                     @RequestParam(value = "begin", required = false) Integer begin,
                                     @RequestParam(value = "end", required = false) Integer end) {
-        // TODO 根据查询时间间隔判断查询history还是趋势表
-        JSONArray s = zabbixApiService.getHistoryData(ids, begin, end);
-        log.info("log#1 {},{},{}", begin, end, s.size());
-        return s;
+        return zabbixApiService.getHistoryData(ids, type, begin, end);
     }
 
 }
