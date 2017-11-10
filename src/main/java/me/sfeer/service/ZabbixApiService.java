@@ -125,21 +125,18 @@ public class ZabbixApiService {
         return zabbixApi.call(req.build()).getJSONArray("result");
     }
 
-    public JSONArray getHistoryData(String id, Integer begin, Integer end) {
+    public JSONArray getHistoryData(String ids, Integer type, Integer begin, Integer end) {
         initZabbixApi();
         RequestBuilder req = RequestBuilder.newBuilder()
                 .method("history.get")
-                .paramEntry("itemids", id)
-                .paramEntry("history", 0)
+                .paramEntry("itemids", ids.split(","))
+                .paramEntry("history", type)
                 .paramEntry("sortorder", "DESC")
                 .paramEntry("sortfield", "clock");
-
         if (begin != null)
             req.paramEntry("time_from", begin);
-
         if (end != null)
             req.paramEntry("time_till", end);
-
         return zabbixApi.call(req.build()).getJSONArray("result");
     }
 
