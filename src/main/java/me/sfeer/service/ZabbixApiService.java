@@ -29,18 +29,12 @@ public class ZabbixApiService {
     @Value("${zabbix.password}")
     private String password;
 
-    private ZabbixApi zabbixApi;
-
     private static final Logger log = LoggerFactory.getLogger(ZabbixApiService.class);
 
-    private void initZabbixApi() {
-        zabbixApi = new DefaultZabbixApi(url);
+    public Result createHost(Host host) {
+        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
         zabbixApi.init();
         zabbixApi.login(username, password);
-    }
-
-    public Result createHost(Host host) {
-        initZabbixApi();
         JSONObject inter = new JSONObject();
         inter.put("type", host.getType());
         inter.put("main", 1);
@@ -67,11 +61,14 @@ public class ZabbixApiService {
             log.info("保存监控对象：{}", host.toString());
             zabbixApiMapper.insertRssRelation(host);
         }
+        zabbixApi.destroy();
         return new Result();
     }
 
     public JSONObject getHostData(String id) {
-        initZabbixApi();
+        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        zabbixApi.init();
+        zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
                 .method("item.get")
                 .paramEntry("output", new String[]{"key_", "lastvalue"})
@@ -82,35 +79,44 @@ public class ZabbixApiService {
             JSONObject item = arr.getJSONObject(i);
             res.put(item.getString("key_"), item.getString("lastvalue"));
         }
+        zabbixApi.destroy();
         return res;
     }
 
     public JSONArray getTemplates(String name) {
-        initZabbixApi();
+        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        zabbixApi.init();
+        zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
                 .method("template.get")
                 .paramEntry("output", new String[]{"templateid", "name"})
                 .paramEntry("selectItems", "count")
                 .paramEntry("selectHosts", new String[]{"hostid", "name", "status"})
                 .paramEntry("sortfield", "name");
-
         if (name != null && !name.equals(""))
             req.paramEntry("search", JSONObject.parse("{\"name\":\"" + name + "\"}"));
-
-        return zabbixApi.call(req.build()).getJSONArray("result");
+        JSONArray res = zabbixApi.call(req.build()).getJSONArray("result");
+        zabbixApi.destroy();
+        return res;
     }
 
     public JSONArray getTemplateList() {
-        initZabbixApi();
+        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        zabbixApi.init();
+        zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
                 .method("template.get")
                 .paramEntry("output", new String[]{"templateid", "name"})
                 .paramEntry("sortfield", "name");
-        return zabbixApi.call(req.build()).getJSONArray("result");
+        JSONArray res = zabbixApi.call(req.build()).getJSONArray("result");
+        zabbixApi.destroy();
+        return res;
     }
 
     public JSONArray getHosts(String name) {
-        initZabbixApi();
+        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        zabbixApi.init();
+        zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
                 .method("host.get")
                 .paramEntry("output", new String[]{"hostid", "name", "status"})
@@ -118,15 +124,17 @@ public class ZabbixApiService {
                 .paramEntry("selectItems", "count")
                 .paramEntry("selectParentTemplates", new String[]{"templateid", "name"})
                 .paramEntry("sortfield", "name");
-
         if (name != null && !name.equals(""))
             req.paramEntry("search", JSONObject.parse("{\"name\":\"" + name + "\"}"));
-
-        return zabbixApi.call(req.build()).getJSONArray("result");
+        JSONArray res = zabbixApi.call(req.build()).getJSONArray("result");
+        zabbixApi.destroy();
+        return res;
     }
 
     public JSONArray getHistoryData(String ids, Integer type, Integer begin, Integer end) {
-        initZabbixApi();
+        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        zabbixApi.init();
+        zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
                 .method("history.get")
                 .paramEntry("itemids", ids.split(","))
@@ -137,45 +145,63 @@ public class ZabbixApiService {
             req.paramEntry("time_from", begin);
         if (end != null)
             req.paramEntry("time_till", end);
-        return zabbixApi.call(req.build()).getJSONArray("result");
+        JSONArray res = zabbixApi.call(req.build()).getJSONArray("result");
+        zabbixApi.destroy();
+        return res;
     }
 
     public JSONArray getHostGroupList() {
-        initZabbixApi();
+        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        zabbixApi.init();
+        zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
                 .method("hostgroup.get")
                 .paramEntry("output", new String[]{"groupid", "name"})
                 .paramEntry("sortfield", "name");
-        return zabbixApi.call(req.build()).getJSONArray("result");
+        JSONArray res = zabbixApi.call(req.build()).getJSONArray("result");
+        zabbixApi.destroy();
+        return res;
     }
 
     public JSONArray getGraphList(String id) {
-        initZabbixApi();
+        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        zabbixApi.init();
+        zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
                 .method("graph.get")
                 .paramEntry("output", new String[]{"graphid", "name"})
                 .paramEntry("hostids", id)
                 .paramEntry("sortfield", "name");
-        return zabbixApi.call(req.build()).getJSONArray("result");
+        JSONArray res = zabbixApi.call(req.build()).getJSONArray("result");
+        zabbixApi.destroy();
+        return res;
     }
 
     public JSONArray getItemsByGraph(String id) {
-        initZabbixApi();
+        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        zabbixApi.init();
+        zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
                 .method("item.get")
                 .paramEntry("output", new String[]{"itemid", "key_", "value_type", "units"})
                 .paramEntry("graphids", id)
                 .paramEntry("sortfield", "name");
-        return zabbixApi.call(req.build()).getJSONArray("result");
+        JSONArray res = zabbixApi.call(req.build()).getJSONArray("result");
+        zabbixApi.destroy();
+        return res;
     }
 
     public JSONArray getHostList(String id) {
-        initZabbixApi();
+        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        zabbixApi.init();
+        zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
                 .method("host.get")
                 .paramEntry("output", new String[]{"hostid", "name"})
                 .paramEntry("groupids", id)
                 .paramEntry("sortfield", "name");
-        return zabbixApi.call(req.build()).getJSONArray("result");
+        JSONArray res = zabbixApi.call(req.build()).getJSONArray("result");
+        zabbixApi.destroy();
+        return res;
     }
 }
