@@ -24,7 +24,9 @@ public class TopologyController {
     // 下拉框使用
     @GetMapping("/list")
     public Map<String, Object> list(@RequestParam Map<String, String> param) {
-        PageHelper.startPage(Integer.parseInt(param.get("pageNum")), Integer.parseInt(param.get("pageSize")));
+        int pageNum = param.get("pageNum") == null ? 0 : Integer.parseInt(param.get("pageNum"));
+        int pageSize = param.get("pageSize") == null ? 0 : Integer.parseInt(param.get("pageSize"));
+        PageHelper.startPage(pageNum, pageSize, true, null, true);
         List<JSONObject> list = topologyService.findTopology();
         PageInfo<JSONObject> page = new PageInfo<>(list);
         Map<String, Object> res = new HashMap<>();
@@ -52,6 +54,12 @@ public class TopologyController {
         topo.setLinks(param.get("links"));
         topo.setAreas(param.get("areas"));
         return topologyService.createTopology(topo);
+    }
+
+    // 拓扑图关联
+    @PutMapping("/rel")
+    public Result relation(@RequestBody Map<String, String> param) {
+        return topologyService.relateRss(param.get("uuid"), param.get("ids"));
     }
 
     @PutMapping("/modify/{id}")

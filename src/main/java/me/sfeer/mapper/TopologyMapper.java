@@ -24,4 +24,10 @@ public interface TopologyMapper {
 
     @Update("update drp_rm_topology set name=#{name},`group`=#{group},nodes=#{nodes},links=#{links},areas=#{areas} where id=#{id}")
     void updateTopology(Topology topo);
+
+    @Delete("delete from drp_rm_rss_topology where rss_uuid=#{uuid}")
+    void deleteRssTopo(String uuid);
+
+    @Insert("insert into drp_rm_rss_topology(rss_uuid,topoid) values (#{uuid},#{id})")
+    void insertRssTopo(@Param("uuid") String uuid, @Param("id") Long id);
 }

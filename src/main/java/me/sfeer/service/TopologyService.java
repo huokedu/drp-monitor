@@ -5,6 +5,7 @@ import me.sfeer.domain.Topology;
 import me.sfeer.domain.Result;
 import me.sfeer.mapper.TopologyMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -34,6 +35,14 @@ public class TopologyService {
 
     public Result modifyTopology(Topology map) {
         topologyMapper.updateTopology(map);
+        return new Result();
+    }
+
+    @Transactional
+    public Result relateRss(String uuid, String ids) {
+        topologyMapper.deleteRssTopo(uuid);
+        for (String d : ids.split(","))
+            topologyMapper.insertRssTopo(uuid, Long.parseLong(d));
         return new Result();
     }
 }

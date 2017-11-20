@@ -150,6 +150,22 @@ public class ZabbixApiService {
         return res;
     }
 
+    public JSONArray getTrendData(String ids, Integer begin, Integer end) {
+        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        zabbixApi.init();
+        zabbixApi.login(username, password);
+        RequestBuilder req = RequestBuilder.newBuilder()
+                .method("trend.get")
+                .paramEntry("itemids", ids.split(","));
+        if (begin != null)
+            req.paramEntry("time_from", begin);
+        if (end != null)
+            req.paramEntry("time_till", end);
+        JSONArray res = zabbixApi.call(req.build()).getJSONArray("result");
+        zabbixApi.destroy();
+        return res;
+    }
+
     public JSONArray getHostGroupList() {
         ZabbixApi zabbixApi = new DefaultZabbixApi(url);
         zabbixApi.init();
