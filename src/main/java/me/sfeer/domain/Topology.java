@@ -1,5 +1,7 @@
 package me.sfeer.domain;
 
+import java.util.Date;
+
 public class Topology {
 
     private Long id;
@@ -8,6 +10,7 @@ public class Topology {
     private String nodes;
     private String links;
     private String areas;
+    private Date ctime;
 
     public Long getId() {
         return id;
@@ -57,6 +60,14 @@ public class Topology {
         this.areas = areas;
     }
 
+    public Date getCtime() {
+        return ctime;
+    }
+
+    public void setCtime(Date ctime) {
+        this.ctime = ctime;
+    }
+
     @Override
     public String toString() {
         return "Topology{" +
@@ -66,6 +77,7 @@ public class Topology {
                 ", nodes='" + nodes + '\'' +
                 ", links='" + links + '\'' +
                 ", areas='" + areas + '\'' +
+                ", ctime=" + ctime +
                 '}';
     }
 }
