@@ -5,7 +5,6 @@ logging:
     root: INFO
     # print sql
     me.sfeer.mapper: DEBUG
-  file: logs/drp-monitor.log
 
 # server settings
 server:
