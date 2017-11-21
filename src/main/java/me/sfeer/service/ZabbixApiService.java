@@ -150,13 +150,14 @@ public class ZabbixApiService {
         return res;
     }
 
-    public JSONArray getTrendData(String ids, Integer begin, Integer end) {
+    public JSONArray getTrendData(String ids, Integer type, Integer begin, Integer end) {
         ZabbixApi zabbixApi = new DefaultZabbixApi(url);
         zabbixApi.init();
         zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
                 .method("trend.get")
-                .paramEntry("itemids", ids.split(","));
+                .paramEntry("itemids", ids.split(","))
+                .paramEntry("history", type);
         if (begin != null)
             req.paramEntry("time_from", begin);
         if (end != null)

@@ -119,9 +119,10 @@ public class ZabbixApiController {
     // 趋势数据
     @GetMapping("/trend")
     public JSONArray getTrendData(@RequestParam("itemids") String ids,
+                                  @RequestParam("type") Integer type,
                                     @RequestParam(value = "begin", required = false) Integer begin,
                                     @RequestParam(value = "end", required = false) Integer end) {
-        return zabbixApiService.getTrendData(ids, begin, end);
+        return zabbixApiService.getTrendData(ids, type, begin, end);
     }
 
 }
