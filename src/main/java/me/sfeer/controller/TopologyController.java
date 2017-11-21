@@ -26,8 +26,9 @@ public class TopologyController {
     public Map<String, Object> list(@RequestParam Map<String, String> param) {
         int pageNum = param.get("pageNum") == null ? 0 : Integer.parseInt(param.get("pageNum"));
         int pageSize = param.get("pageSize") == null ? 0 : Integer.parseInt(param.get("pageSize"));
+        String name = param.get("name");
         PageHelper.startPage(pageNum, pageSize, true, null, true);
-        List<JSONObject> list = topologyService.findTopology();
+        List<JSONObject> list = topologyService.findTopology(name);
         PageInfo<JSONObject> page = new PageInfo<>(list);
         Map<String, Object> res = new HashMap<>();
         res.put("total", page.getTotal());

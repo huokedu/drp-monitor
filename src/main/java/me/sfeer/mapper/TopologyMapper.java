@@ -10,8 +10,8 @@ import java.util.List;
 @Component
 @Mapper
 public interface TopologyMapper {
-    @Select("select id,name,`group`,ctime from drp_rm_topology")
-    List<JSONObject> selectTopology();
+    @SelectProvider(type = TopologySqlProvider.class, method = "selectTopology")
+    List<JSONObject> selectTopology(String name);
 
     @Select("select a.id,a.name,a.`group`,a.ctime from drp_rm_topology a, drp_rm_rss_topology b where a.id=b.topoid and b.rss_uuid=#{uuid}")
     List<JSONObject> selectTopologyByRss(@Param("uuid") String uuid);

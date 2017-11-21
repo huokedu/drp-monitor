@@ -16,8 +16,8 @@ public class TopologyService {
     @Resource
     private TopologyMapper topologyMapper;
 
-    public List<JSONObject> findTopology() {
-        return topologyMapper.selectTopology();
+    public List<JSONObject> findTopology(String name) {
+        return topologyMapper.selectTopology(name);
     }
 
     public List<JSONObject> findTopologyByRss(String uuid) {
