@@ -138,9 +138,7 @@ public class ZabbixApiService {
         RequestBuilder req = RequestBuilder.newBuilder()
                 .method("history.get")
                 .paramEntry("itemids", ids.split(","))
-                .paramEntry("history", type)
-                .paramEntry("sortorder", "DESC")
-                .paramEntry("sortfield", "clock");
+                .paramEntry("history", type);
         if (begin != null)
             req.paramEntry("time_from", begin);
         if (end != null)
@@ -157,7 +155,7 @@ public class ZabbixApiService {
         RequestBuilder req = RequestBuilder.newBuilder()
                 .method("trend.get")
                 .paramEntry("itemids", ids.split(","))
-                .paramEntry("history", type);
+                .paramEntry("trend", type);
         if (begin != null)
             req.paramEntry("time_from", begin);
         if (end != null)
