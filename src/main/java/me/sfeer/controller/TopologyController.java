@@ -6,9 +6,13 @@ import com.github.pagehelper.PageInfo;
 import me.sfeer.domain.Topology;
 import me.sfeer.domain.Result;
 import me.sfeer.service.TopologyService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,15 +22,17 @@ import java.util.Map;
 @RequestMapping("/topo")
 public class TopologyController {
 
+    private static final Logger log = LoggerFactory.getLogger(TopologyController.class);
+
     @Resource
     private TopologyService topologyService;
 
     // 下拉框使用
     @GetMapping("/list")
-    public Map<String, Object> list(@RequestParam Map<String, String> param) {
+    public Map<String, Object> list(@RequestParam Map<String, String> param) throws UnsupportedEncodingException {
         int pageNum = param.get("pageNum") == null ? 0 : Integer.parseInt(param.get("pageNum"));
         int pageSize = param.get("pageSize") == null ? 0 : Integer.parseInt(param.get("pageSize"));
-        String name = param.get("name");
+        String name = URLDecoder.decode(param.get("name"), "utf-8");
         PageHelper.startPage(pageNum, pageSize, true, null, true);
         List<JSONObject> list = topologyService.findTopology(name);
         PageInfo<JSONObject> page = new PageInfo<>(list);

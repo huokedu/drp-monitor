@@ -10,7 +10,7 @@ public class TopologySqlProvider {
                 SELECT("id,name,`group`,ctime");
                 FROM("drp_rm_topology");
                 if (name != null && !"".equals(name))
-                    WHERE("name like #{name}");
+                    WHERE("name like concat('%',#{name},'%')");
             }
         }.toString();
     }
