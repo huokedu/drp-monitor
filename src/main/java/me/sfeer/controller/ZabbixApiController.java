@@ -57,7 +57,7 @@ public class ZabbixApiController {
 
     // 获取主机的最新监控项值
     @GetMapping("/latestdata")
-    public JSONObject getHostData(@RequestParam("hostid") String id) {
+    public JSONArray getHostData(@RequestParam("hostid") String id) {
         return zabbixApiService.getHostData(id);
     }
 

@@ -65,20 +65,15 @@ public class ZabbixApiService {
         return new Result();
     }
 
-    public JSONObject getHostData(String id) {
+    public JSONArray getHostData(String id) {
         ZabbixApi zabbixApi = new DefaultZabbixApi(url);
         zabbixApi.init();
         zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
                 .method("item.get")
-                .paramEntry("output", new String[]{"key_", "lastvalue"})
+                .paramEntry("output", new String[]{"key_", "lastvalue", "value_type"})
                 .paramEntry("hostids", id);
-        JSONArray arr = zabbixApi.call(req.build()).getJSONArray("result");
-        JSONObject res = new JSONObject();
-        for (int i = 0; i < arr.size(); i++) {
-            JSONObject item = arr.getJSONObject(i);
-            res.put(item.getString("key_"), item.getString("lastvalue"));
-        }
+        JSONArray res = zabbixApi.call(req.build()).getJSONArray("result");
         zabbixApi.destroy();
         return res;
     }
