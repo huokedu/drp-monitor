@@ -11,6 +11,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Date;
 import java.util.Map;
 
@@ -31,7 +33,7 @@ public class ZabbixApiController {
         int to = size * num;
         int total = s.size();
         res.put("total", total);
-        if (from < total)
+        if (from < total && size != 0)
             if (to > total)
                 res.put("data", s.subList(from, total));
             else
@@ -63,10 +65,11 @@ public class ZabbixApiController {
 
     // 模版列表
     @GetMapping("/templates")
-    public JSONObject getTemplates(@RequestParam Map<String, String> param) {
-        return pageHelper(zabbixApiService.getTemplates(param.get("name")),
-                Integer.parseInt(param.get("pageNum")),
-                Integer.parseInt(param.get("pageSize")));
+    public JSONObject getTemplates(@RequestParam Map<String, String> param) throws UnsupportedEncodingException {
+        int pageNum = param.get("pageNum") == null ? 0 : Integer.parseInt(param.get("pageNum"));
+        int pageSize = param.get("pageSize") == null ? 0 : Integer.parseInt(param.get("pageSize"));
+        String name = URLDecoder.decode(param.get("name"), "utf-8");
+        return pageHelper(zabbixApiService.getTemplates(name), pageNum, pageSize);
     }
 
     // 模版下拉
@@ -120,8 +123,8 @@ public class ZabbixApiController {
     @GetMapping("/trend")
     public JSONArray getTrendData(@RequestParam("itemids") String ids,
                                   @RequestParam("type") Integer type,
-                                    @RequestParam(value = "begin", required = false) Integer begin,
-                                    @RequestParam(value = "end", required = false) Integer end) {
+                                  @RequestParam(value = "begin", required = false) Integer begin,
+                                  @RequestParam(value = "end", required = false) Integer end) {
         return zabbixApiService.getTrendData(ids, type, begin, end);
     }
 

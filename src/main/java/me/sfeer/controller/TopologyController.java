@@ -27,7 +27,7 @@ public class TopologyController {
     @Resource
     private TopologyService topologyService;
 
-    // 下拉框使用
+    // 拓扑图列表（带分页）
     @GetMapping("/list")
     public Map<String, Object> list(@RequestParam Map<String, String> param) throws UnsupportedEncodingException {
         int pageNum = param.get("pageNum") == null ? 0 : Integer.parseInt(param.get("pageNum"));
@@ -42,6 +42,7 @@ public class TopologyController {
         return res;
     }
 
+    // 资源相关的拓扑图列表
     @GetMapping("/list/{uuid}")
     public List<JSONObject> listByRss(@PathVariable String uuid) {
         return topologyService.findTopologyByRss(uuid);
