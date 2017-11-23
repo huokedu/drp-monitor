@@ -17,6 +17,8 @@ import javax.annotation.Resource;
 
 @Service
 public class ZabbixApiService {
+    private static final Logger log = LoggerFactory.getLogger(ZabbixApiService.class);
+
     @Resource
     private ZabbixApiMapper zabbixApiMapper;
 
@@ -28,8 +30,6 @@ public class ZabbixApiService {
 
     @Value("${zabbix.password}")
     private String password;
-
-    private static final Logger log = LoggerFactory.getLogger(ZabbixApiService.class);
 
     public Result createHost(Host host) {
         ZabbixApi zabbixApi = new DefaultZabbixApi(url);
@@ -213,5 +213,33 @@ public class ZabbixApiService {
         JSONArray res = zabbixApi.call(req.build()).getJSONArray("result");
         zabbixApi.destroy();
         return res;
+    }
+
+    public Host getHostByRss(String uuid) {
+        String hostId = zabbixApiMapper.getHostByRss(uuid);
+        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        zabbixApi.init();
+        zabbixApi.login(username, password);
+        RequestBuilder req = RequestBuilder.newBuilder()
+                .method("host.get")
+                .paramEntry("selectGroups", new String[]{"groupid"})
+                .paramEntry("selectInterfaces", new String[]{"ip", "port", "type"})
+                .paramEntry("selectParentTemplates", new String[]{"groupid"})
+                .paramEntry("output", new String[]{"hostid", "name", "host"})
+                .paramEntry("hostids", hostId);
+        JSONObject res = zabbixApi.call(req.build()).getJSONArray("result").getJSONObject(0);
+        log.error("DADADA: {}", res);
+        zabbixApi.destroy();
+        Host host = new Host();
+        host.setId(res.getLong("hostid"));
+        host.setRssId(uuid);
+        host.setHost(res.getString("host"));
+        host.setName(res.getString("name"));
+        host.setTemplateId(res.getJSONArray("parentTemplates").getJSONObject(0).getLong("templateid"));
+        host.setGroupId(res.getJSONArray("groups").getJSONObject(0).getLong("groupid"));
+        host.setIp(res.getJSONArray("interfaces").getJSONObject(0).getString("ip"));
+        host.setPort(res.getJSONArray("interfaces").getJSONObject(0).getString("port"));
+        host.setType(res.getJSONArray("interfaces").getJSONObject(0).getInteger("type"));
+        return host;
     }
 }

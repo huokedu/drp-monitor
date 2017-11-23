@@ -1,10 +1,13 @@
 package me.sfeer.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import me.sfeer.domain.Topology;
 import me.sfeer.domain.Result;
+import me.sfeer.domain.Topology;
+import me.sfeer.scheduler.DynamicTask;
+import me.sfeer.service.RssService;
 import me.sfeer.service.TopologyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,21 +22,42 @@ import java.util.Map;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/topo")
-public class TopologyController {
+@RequestMapping("/drp")
+public class DrpController {
+    private static final Logger log = LoggerFactory.getLogger(DrpController.class);
 
-    private static final Logger log = LoggerFactory.getLogger(TopologyController.class);
+    @Resource
+    private RssService rssService;
+
+    @Resource
+    private DynamicTask dynamicTask;
 
     @Resource
     private TopologyService topologyService;
 
+    // 资源树结构
+    @GetMapping("/rss/tree")
+    public JSONArray cateList() {
+        return rssService.cateTree();
+    }
+
+    // 资源相关的拓扑图列表
+    @GetMapping("/rss/{uuid}/topos")
+    public List<JSONObject> listByRss(@PathVariable String uuid) {
+        return topologyService.findTopologyByRss(uuid);
+    }
+
+    // 动态修改调度任务
+    @PutMapping("/task/{id}")
+    public Result updateDrpShellCron(@PathVariable String id, @RequestBody Map<String, String> param) {
+        return dynamicTask.updateCronEexpress(id, param.get("cron"));
+    }
+
     // 拓扑图列表（带分页）
-    @GetMapping("/list")
+    @GetMapping("/topos")
     public Map<String, Object> list(@RequestParam Map<String, String> param) throws UnsupportedEncodingException {
-        int pageNum = param.get("pageNum") == null ? 0 : Integer.parseInt(param.get("pageNum"));
-        int pageSize = param.get("pageSize") == null ? 0 : Integer.parseInt(param.get("pageSize"));
         String name = URLDecoder.decode(param.get("name"), "utf-8");
-        PageHelper.startPage(pageNum, pageSize, true, null, true);
+        PageHelper.startPage(Integer.parseInt(param.get("pageNum")), Integer.parseInt(param.get("pageSize")));
         List<JSONObject> list = topologyService.findTopology(name);
         PageInfo<JSONObject> page = new PageInfo<>(list);
         Map<String, Object> res = new HashMap<>();
@@ -42,18 +66,12 @@ public class TopologyController {
         return res;
     }
 
-    // 资源相关的拓扑图列表
-    @GetMapping("/list/{uuid}")
-    public List<JSONObject> listByRss(@PathVariable String uuid) {
-        return topologyService.findTopologyByRss(uuid);
-    }
-
-    @GetMapping("/get/{id}")
+    @GetMapping("/topo/{id}")
     public Topology get(@PathVariable String id) {
         return topologyService.findTopology(Long.parseLong(id));
     }
 
-    @PostMapping("/add")
+    @PostMapping("/topo")
     public Result create(@RequestBody Map<String, String> param) {
         Topology topo = new Topology();
         topo.setName(param.get("name"));
@@ -64,13 +82,7 @@ public class TopologyController {
         return topologyService.createTopology(topo);
     }
 
-    // 拓扑图关联
-    @PutMapping("/rel")
-    public Result relation(@RequestBody Map<String, String> param) {
-        return topologyService.relateRss(param.get("uuid"), param.get("ids"));
-    }
-
-    @PutMapping("/modify/{id}")
+    @PutMapping("/topo/{id}")
     public Result update(@PathVariable String id, @RequestBody Map<String, String> param) {
         Topology topo = new Topology();
         topo.setId(Long.parseLong(id));
@@ -80,5 +92,11 @@ public class TopologyController {
         topo.setLinks(param.get("links"));
         topo.setAreas(param.get("areas"));
         return topologyService.modifyTopology(topo);
+    }
+
+    // 拓扑图关联
+    @PutMapping("/topo/rel")
+    public Result relation(@RequestBody Map<String, String> param) {
+        return topologyService.relateRss(param.get("uuid"), param.get("ids"));
     }
 }

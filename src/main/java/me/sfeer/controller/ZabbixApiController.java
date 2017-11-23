@@ -21,11 +21,10 @@ import java.util.Map;
 @CrossOrigin
 @RequestMapping("/zabbix")
 public class ZabbixApiController {
+    private static final Logger log = LoggerFactory.getLogger(ZabbixApiController.class);
 
     @Resource
     private ZabbixApiService zabbixApiService;
-
-    private static final Logger log = LoggerFactory.getLogger(ZabbixApiController.class);
 
     private JSONObject pageHelper(JSONArray s, int num, int size) {
         JSONObject res = new JSONObject();
@@ -43,6 +42,7 @@ public class ZabbixApiController {
         return res;
     }
 
+    // 添加host
     @PostMapping("/host")
     public Result addHost(@RequestBody Map<String, String> param) {
         Host host = new Host();
@@ -55,6 +55,12 @@ public class ZabbixApiController {
         host.setTemplateId(Long.parseLong(param.get("templateid")));
         host.setRssId(param.get("rssuuid"));
         return zabbixApiService.createHost(host);
+    }
+
+    // 根据资源id获取host
+    @GetMapping("/host/rss/{uuid}")
+    public Host getHostByRss(@PathVariable String uuid) {
+        return zabbixApiService.getHostByRss(uuid);
     }
 
     // 获取主机的最新监控项值
