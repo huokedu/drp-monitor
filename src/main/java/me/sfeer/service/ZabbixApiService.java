@@ -228,7 +228,6 @@ public class ZabbixApiService {
                 .paramEntry("output", new String[]{"hostid", "name", "host"})
                 .paramEntry("hostids", hostId);
         JSONObject res = zabbixApi.call(req.build()).getJSONArray("result").getJSONObject(0);
-        log.error("DADADA: {}", res);
         zabbixApi.destroy();
         Host host = new Host();
         host.setId(res.getLong("hostid"));
