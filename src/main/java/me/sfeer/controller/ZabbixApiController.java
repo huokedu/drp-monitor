@@ -72,9 +72,9 @@ public class ZabbixApiController {
     // 模版列表
     @GetMapping("/templates")
     public JSONObject getTemplates(@RequestParam Map<String, String> param) throws UnsupportedEncodingException {
-        int pageNum = param.get("pageNum") == null ? 0 : Integer.parseInt(param.get("pageNum"));
-        int pageSize = param.get("pageSize") == null ? 0 : Integer.parseInt(param.get("pageSize"));
-        String name = URLDecoder.decode(param.get("name"), "utf-8");
+        int pageNum = param.containsKey("pageNum") ? Integer.parseInt(param.get("pageNum")) : 1;
+        int pageSize = param.containsKey("pageSize") ? Integer.parseInt(param.get("pageSize")) : 0;
+        String name = param.containsKey("name") ? URLDecoder.decode(param.get("name"), "utf-8") : "";
         return pageHelper(zabbixApiService.getTemplates(name), pageNum, pageSize);
     }
 

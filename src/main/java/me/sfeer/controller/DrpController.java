@@ -56,8 +56,10 @@ public class DrpController {
     // 拓扑图列表（带分页）
     @GetMapping("/topos")
     public Map<String, Object> list(@RequestParam Map<String, String> param) throws UnsupportedEncodingException {
-        String name = URLDecoder.decode(param.get("name"), "utf-8");
-        PageHelper.startPage(Integer.parseInt(param.get("pageNum")), Integer.parseInt(param.get("pageSize")));
+        int pageNum = param.containsKey("pageNum") ? Integer.parseInt(param.get("pageNum")) : 1;
+        int pageSize = param.containsKey("pageSize") ? Integer.parseInt(param.get("pageSize")) : 0;
+        String name = param.containsKey("name") ? URLDecoder.decode(param.get("name"), "utf-8") : "";
+        PageHelper.startPage(pageNum, pageSize, true, null, true);
         List<JSONObject> list = topologyService.findTopology(name);
         PageInfo<JSONObject> page = new PageInfo<>(list);
         Map<String, Object> res = new HashMap<>();
