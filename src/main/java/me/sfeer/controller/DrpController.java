@@ -107,9 +107,9 @@ public class DrpController {
     public JSONObject getMainInfo() {
         JSONObject main = new JSONObject();
         // 基础设施
-        main.put("cabinet", rssService.selectCabinetCapacity());
+        main.put("dev", rssService.selectDev());
         // 设备
-
+        main.put("host", rssService.selectHost());
         return main;
     }
 }
