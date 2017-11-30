@@ -101,4 +101,15 @@ public class DrpController {
     public Result relation(@RequestBody Map<String, String> param) {
         return topologyService.relateRss(param.get("uuid"), param.get("ids"));
     }
+
+    // 首页概览信息
+    @GetMapping("/main")
+    public JSONObject getMainInfo() {
+        JSONObject main = new JSONObject();
+        // 基础设施
+        main.put("cabinet", rssService.selectCabinetCapacity());
+        // 设备
+
+        return main;
+    }
 }
