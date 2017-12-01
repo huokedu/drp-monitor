@@ -1,26 +1,19 @@
-package me.sfeer.service;
+package me.sfeer.mapper;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.github.hengyunabc.zabbix.api.DefaultZabbixApi;
 import io.github.hengyunabc.zabbix.api.RequestBuilder;
-import io.github.hengyunabc.zabbix.api.ZabbixApi;
 import me.sfeer.domain.Host;
 import me.sfeer.domain.Result;
-import me.sfeer.mapper.ZabbixApiMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-
-@Service
-public class ZabbixApiService {
-    private static final Logger log = LoggerFactory.getLogger(ZabbixApiService.class);
-
-    @Resource
-    private ZabbixApiMapper zabbixApiMapper;
+@Component
+public class ZabbixApi {
+    private static final Logger log = LoggerFactory.getLogger(ZabbixApi.class);
 
     @Value("${zabbix.url}")
     private String url;
@@ -31,8 +24,8 @@ public class ZabbixApiService {
     @Value("${zabbix.password}")
     private String password;
 
-    public Result createHost(Host host) {
-        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+    public JSONObject createHost(Host host) {
+        io.github.hengyunabc.zabbix.api.ZabbixApi zabbixApi = new DefaultZabbixApi(url);
         zabbixApi.init();
         zabbixApi.login(username, password);
         JSONObject inter = new JSONObject();
@@ -52,21 +45,12 @@ public class ZabbixApiService {
                 .paramEntry("groups", JSONArray.parse("[{\"groupid\":\"" + host.getGroupId() + "\"}]"))
                 .paramEntry("templates", JSONArray.parse("[{\"templateid\":\"" + host.getTemplateId() + "\"}]"));
         JSONObject res = zabbixApi.call(req.build());
-        JSONObject error = res.getJSONObject("error");
-        log.info("返回结果：{}", res.getJSONObject("error"));
-        if (error != null) {
-            return new Result(error.getString("code"), error.getString("data"));
-        } else {
-            host.setId(Long.parseLong(res.getJSONObject("result").getJSONArray("hostids").get(0).toString()));
-            log.info("保存监控对象：{}", host.toString());
-            zabbixApiMapper.insertRssRelation(host);
-        }
         zabbixApi.destroy();
-        return new Result();
+        return res;
     }
 
     public JSONArray getHostData(String id) {
-        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        io.github.hengyunabc.zabbix.api.ZabbixApi zabbixApi = new DefaultZabbixApi(url);
         zabbixApi.init();
         zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
@@ -79,7 +63,7 @@ public class ZabbixApiService {
     }
 
     public JSONArray getTemplates(String name) {
-        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        io.github.hengyunabc.zabbix.api.ZabbixApi zabbixApi = new DefaultZabbixApi(url);
         zabbixApi.init();
         zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
@@ -96,7 +80,7 @@ public class ZabbixApiService {
     }
 
     public JSONArray getTemplateList() {
-        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        io.github.hengyunabc.zabbix.api.ZabbixApi zabbixApi = new DefaultZabbixApi(url);
         zabbixApi.init();
         zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
@@ -109,7 +93,7 @@ public class ZabbixApiService {
     }
 
     public JSONArray getHosts(String name) {
-        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        io.github.hengyunabc.zabbix.api.ZabbixApi zabbixApi = new DefaultZabbixApi(url);
         zabbixApi.init();
         zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
@@ -127,7 +111,7 @@ public class ZabbixApiService {
     }
 
     public JSONArray getHistoryData(String ids, Integer type, Integer begin, Integer end) {
-        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        io.github.hengyunabc.zabbix.api.ZabbixApi zabbixApi = new DefaultZabbixApi(url);
         zabbixApi.init();
         zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
@@ -144,7 +128,7 @@ public class ZabbixApiService {
     }
 
     public JSONArray getTrendData(String ids, Integer type, Integer begin, Integer end) {
-        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        io.github.hengyunabc.zabbix.api.ZabbixApi zabbixApi = new DefaultZabbixApi(url);
         zabbixApi.init();
         zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
@@ -161,7 +145,7 @@ public class ZabbixApiService {
     }
 
     public JSONArray getHostGroupList() {
-        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        io.github.hengyunabc.zabbix.api.ZabbixApi zabbixApi = new DefaultZabbixApi(url);
         zabbixApi.init();
         zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
@@ -174,7 +158,7 @@ public class ZabbixApiService {
     }
 
     public JSONArray getGraphList(String id) {
-        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        io.github.hengyunabc.zabbix.api.ZabbixApi zabbixApi = new DefaultZabbixApi(url);
         zabbixApi.init();
         zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
@@ -188,7 +172,7 @@ public class ZabbixApiService {
     }
 
     public JSONArray getItemsByGraph(String id) {
-        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        io.github.hengyunabc.zabbix.api.ZabbixApi zabbixApi = new DefaultZabbixApi(url);
         zabbixApi.init();
         zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
@@ -202,7 +186,7 @@ public class ZabbixApiService {
     }
 
     public JSONArray getHostList(String id) {
-        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        io.github.hengyunabc.zabbix.api.ZabbixApi zabbixApi = new DefaultZabbixApi(url);
         zabbixApi.init();
         zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
@@ -215,9 +199,8 @@ public class ZabbixApiService {
         return res;
     }
 
-    public Host getHostByRss(String uuid) {
-        String hostId = zabbixApiMapper.getHostByRss(uuid);
-        ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+    public Host getHostByRss(String hostId) {
+        io.github.hengyunabc.zabbix.api.ZabbixApi zabbixApi = new DefaultZabbixApi(url);
         zabbixApi.init();
         zabbixApi.login(username, password);
         RequestBuilder req = RequestBuilder.newBuilder()
@@ -231,7 +214,6 @@ public class ZabbixApiService {
         zabbixApi.destroy();
         Host host = new Host();
         host.setId(res.getLong("hostid"));
-        host.setRssId(uuid);
         host.setHost(res.getString("host"));
         host.setName(res.getString("name"));
         host.setTemplateId(res.getJSONArray("parentTemplates").getJSONObject(0).getLong("templateid"));
@@ -241,4 +223,5 @@ public class ZabbixApiService {
         host.setType(res.getJSONArray("interfaces").getJSONObject(0).getInteger("type"));
         return host;
     }
+
 }

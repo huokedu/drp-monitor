@@ -4,27 +4,25 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import me.sfeer.domain.Host;
 import me.sfeer.domain.Result;
-import me.sfeer.service.ZabbixApiService;
+import me.sfeer.service.ZabbixService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Date;
 import java.util.Map;
 
 
 @RestController
 @CrossOrigin
 @RequestMapping("/zabbix")
-public class ZabbixApiController {
-    private static final Logger log = LoggerFactory.getLogger(ZabbixApiController.class);
+public class ZabbixController {
+    private static final Logger log = LoggerFactory.getLogger(ZabbixController.class);
 
     @Resource
-    private ZabbixApiService zabbixApiService;
+    private ZabbixService zabbixService;
 
     private JSONObject pageHelper(JSONArray s, int num, int size) {
         JSONObject res = new JSONObject();
@@ -54,19 +52,19 @@ public class ZabbixApiController {
         host.setPort(param.get("port"));
         host.setTemplateId(Long.parseLong(param.get("templateid")));
         host.setRssId(param.get("rssuuid"));
-        return zabbixApiService.createHost(host);
+        return zabbixService.createHost(host);
     }
 
     // 根据资源id获取host
     @GetMapping("/host/rss/{uuid}")
     public Host getHostByRss(@PathVariable String uuid) {
-        return zabbixApiService.getHostByRss(uuid);
+        return zabbixService.getHostByRss(uuid);
     }
 
     // 获取主机的最新监控项值
     @GetMapping("/latestdata")
     public JSONArray getHostData(@RequestParam("hostid") String id) {
-        return zabbixApiService.getHostData(id);
+        return zabbixService.getHostData(id);
     }
 
     // 模版列表
@@ -75,31 +73,31 @@ public class ZabbixApiController {
         int pageNum = param.containsKey("pageNum") ? Integer.parseInt(param.get("pageNum")) : 1;
         int pageSize = param.containsKey("pageSize") ? Integer.parseInt(param.get("pageSize")) : 0;
         String name = param.containsKey("name") ? URLDecoder.decode(param.get("name"), "utf-8") : "";
-        return pageHelper(zabbixApiService.getTemplates(name), pageNum, pageSize);
+        return pageHelper(zabbixService.getTemplates(name), pageNum, pageSize);
     }
 
     // 模版下拉
     @GetMapping("/template/list")
     public JSONArray getTemplateList() {
-        return zabbixApiService.getTemplateList();
+        return zabbixService.getTemplateList();
     }
 
     // 分组下拉
     @GetMapping("/group/list")
     public JSONArray getHostGroupList() {
-        return zabbixApiService.getHostGroupList();
+        return zabbixService.getHostGroupList();
     }
 
     // 主机下拉
     @GetMapping("/host/list")
     public JSONArray getHostList(@RequestParam("groupid") String id) {
-        return zabbixApiService.getHostList(id);
+        return zabbixService.getHostList(id);
     }
 
     // 主机列表
     @GetMapping("/hosts")
     public JSONObject getHosts(@RequestParam Map<String, String> param) {
-        return pageHelper(zabbixApiService.getHosts(param.get("name")),
+        return pageHelper(zabbixService.getHosts(param.get("name")),
                 Integer.parseInt(param.get("pageNum")),
                 Integer.parseInt(param.get("pageSize")));
     }
@@ -107,13 +105,13 @@ public class ZabbixApiController {
     // 图形下拉
     @GetMapping("/graph/list")
     public JSONArray getGraphList(@RequestParam("hostid") String id) {
-        return zabbixApiService.getGraphList(id);
+        return zabbixService.getGraphList(id);
     }
 
     // 图形包含监控项
     @GetMapping("/items")
     public JSONArray getItems(@RequestParam("graphid") String id) {
-        return zabbixApiService.getItemsByGraph(id);
+        return zabbixService.getItemsByGraph(id);
     }
 
     // 历史数据
@@ -122,7 +120,7 @@ public class ZabbixApiController {
                                     @RequestParam("type") Integer type,
                                     @RequestParam(value = "begin", required = false) Integer begin,
                                     @RequestParam(value = "end", required = false) Integer end) {
-        return zabbixApiService.getHistoryData(ids, type, begin, end);
+        return zabbixService.getHistoryData(ids, type, begin, end);
     }
 
     // 趋势数据
@@ -131,7 +129,7 @@ public class ZabbixApiController {
                                   @RequestParam("type") Integer type,
                                   @RequestParam(value = "begin", required = false) Integer begin,
                                   @RequestParam(value = "end", required = false) Integer end) {
-        return zabbixApiService.getTrendData(ids, type, begin, end);
+        return zabbixService.getTrendData(ids, type, begin, end);
     }
 
 }

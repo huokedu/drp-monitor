@@ -1,8 +1,8 @@
 package me.sfeer.scheduler;
 
-import me.sfeer.domain.DrpShell;
+import me.sfeer.domain.Task;
 import me.sfeer.domain.Result;
-import me.sfeer.service.DrpShellService;
+import me.sfeer.service.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.Trigger;
@@ -22,16 +22,16 @@ import java.util.Map;
 public class DynamicTask implements SchedulingConfigurer {
 
     @Resource
-    private DrpShellService drpShellService;
+    private TaskService taskService;
 
     private static final Logger log = LoggerFactory.getLogger(DynamicTask.class);
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-    private Map<String, DrpShell> drp_shell = new HashMap<>();
+    private Map<String, Task> drp_shell = new HashMap<>();
 
     public Result updateCronEexpress(String key, String cron) {
-        DrpShell shell = drp_shell.get(key);
+        Task shell = drp_shell.get(key);
         shell.setCron(cron);
         drp_shell.put(key, shell);
         return new Result();
@@ -39,9 +39,9 @@ public class DynamicTask implements SchedulingConfigurer {
 
     private class Rs implements Runnable {
 
-        private DrpShell shell;
+        private Task shell;
 
-        Rs(DrpShell shell) {
+        Rs(Task shell) {
             this.shell = shell;
         }
 
@@ -52,9 +52,9 @@ public class DynamicTask implements SchedulingConfigurer {
 
     private class Tg implements Trigger {
 
-        private DrpShell shell;
+        private Task shell;
 
-        Tg(DrpShell shell) {
+        Tg(Task shell) {
             this.shell = shell;
         }
 
@@ -67,7 +67,7 @@ public class DynamicTask implements SchedulingConfigurer {
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
         // 初始化读取数据库中所有脚本
-        for (DrpShell shell : drpShellService.findAllDrpShell())
+        for (Task shell : taskService.findAllDrpShell())
             drp_shell.put(shell.getId().toString(), shell);
         Map<Runnable, Trigger> tasks = new HashMap<>();
         for (String key : drp_shell.keySet())

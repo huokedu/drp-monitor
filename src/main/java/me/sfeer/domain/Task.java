@@ -1,6 +1,6 @@
 package me.sfeer.domain;
 
-public class DrpShell {
+public class Task {
     private Long id;
     private String name;
     private String content;
@@ -40,7 +40,7 @@ public class DrpShell {
 
     @Override
     public String toString() {
-        return "DrpShell{" +
+        return "Task{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", content='" + content + '\'' +

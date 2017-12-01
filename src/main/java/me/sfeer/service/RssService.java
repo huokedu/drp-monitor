@@ -202,7 +202,7 @@ public class RssService {
 
         // 应用性能监控概览
         for(JSONObject o : rssMapper.appMonitorInfo()) {
-
+            // TODO 根据hostid查询cpu/memory, 多个hostid取平均值
         }
         return res;
     }

@@ -1,6 +1,8 @@
 package me.sfeer.mapper;
 
 import com.alibaba.fastjson.JSONObject;
+import me.sfeer.domain.Host;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -130,4 +132,12 @@ public interface RssMapper {
             "      AND d.attr_uuid = 'attr_application_use'\n" +
             "      AND d.attr_value IN ('03', '04', '05')")
     List<JSONObject> appMonitorInfo();
+
+    // 新增资源和监控对象关联
+    @Insert("insert into drp_rm_monitor(rss_uuid,hostid) values (#{rssId},#{id})")
+    void insertRssRelation(Host host);
+
+    // 查询资源对应监控对象
+    @Select("select hostid from drp_rm_monitor where rss_uuid=#{uuid}")
+    String getHostByRss(@Param("uuid") String uuid);
 }
