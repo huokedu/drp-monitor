@@ -107,9 +107,17 @@ public class DrpController {
     public JSONObject getMainInfo() {
         JSONObject main = new JSONObject();
         // 基础设施
-        main.put("dev", rssService.selectDev());
+        main.put("facility", rssService.overviewFacility());
         // 设备
-        main.put("host", rssService.selectHost());
+        main.put("device", rssService.overviewDevice());
+        // 资源池
+        main.put("pool", rssService.overviewPool());
+        // 节点
+        main.put("node", rssService.overviewNode());
+        // 服务
+        main.put("service", rssService.overviewService());
+        // 应用
+        main.put("app", rssService.overviewApp());
         return main;
     }
 }
