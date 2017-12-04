@@ -118,6 +118,7 @@ public interface RssMapper {
     @Select("SELECT\n" +
             "  m.hostid AS host,\n" +
             "  d.rss_uuid AS node,\n" +
+            "  d.attr_value AS type,\n" +
             "  a.target_rss_uuid AS app\n" +
             "FROM drp_rm_multi_rss_relate a, drp_rm_multi_rss_relate b,\n" +
             "  drp_rm_multi_rss_relate c, drp_rm_multi_rss_attr d\n" +
@@ -132,6 +133,17 @@ public interface RssMapper {
             "      AND d.attr_uuid = 'attr_application_use'\n" +
             "      AND d.attr_value IN ('03', '04', '05')")
     List<JSONObject> appMonitorInfo();
+
+    // 容灾复制、容灾转运行的监控概览信息
+    @Select("SELECT\n" +
+            "  rss_uuid AS app,\n" +
+            "  attr_value AS type,\n" +
+            "  ROUND(RAND(),2)*100 AS speed,\n" +
+            "  '01' AS status\n" +
+            "FROM drp_rm_multi_rss_attr\n" +
+            "WHERE attr_uuid = 'attr_application_use'\n" +
+            "      AND attr_value IN ('01', '02')")
+    List<JSONObject> appRpaLinkInfo();
 
     // 新增资源和监控对象关联
     @Insert("insert into drp_rm_monitor(rss_uuid,hostid) values (#{rssId},#{id})")

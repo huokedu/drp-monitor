@@ -1,5 +1,5 @@
 group 'me.sfeer'
-version '0.1.5'
+version '0.1.6'
 
 buildscript {
     ext {
@@ -32,7 +32,7 @@ dependencies {
     compile 'io.github.hengyunabc:zabbix-api:0.0.2'
     // 分页插件
     compile 'com.github.pagehelper:pagehelper-spring-boot-starter:1.2.3'
-    //providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 }
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'

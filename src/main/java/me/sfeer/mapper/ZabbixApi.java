@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import io.github.hengyunabc.zabbix.api.DefaultZabbixApi;
 import io.github.hengyunabc.zabbix.api.RequestBuilder;
 import me.sfeer.domain.Host;
-import me.sfeer.domain.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -224,4 +223,19 @@ public class ZabbixApi {
         return host;
     }
 
+    // 批量查询Host的cpu memory
+    public JSONArray getHostsPerformance(String[] hostids) {
+        io.github.hengyunabc.zabbix.api.ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        zabbixApi.init();
+        zabbixApi.login(username, password);
+        RequestBuilder req = RequestBuilder.newBuilder()
+                .method("item.get")
+                .paramEntry("output", new String[]{"hostid", "key_", "lastvalue"})
+                .paramEntry("hostids", hostids)
+                .paramEntry("filter", JSONObject.parse("{\"key_\":[\"vm.memory.size[available]\",\"vm.memory.size[total]\",\"system.cpu.util[,idle]\",\"system.stat[cpu,id]\"]}"))
+                .paramEntry("sortfield", "name");
+        JSONArray res = zabbixApi.call(req.build()).getJSONArray("result");
+        zabbixApi.destroy();
+        return res;
+    }
 }

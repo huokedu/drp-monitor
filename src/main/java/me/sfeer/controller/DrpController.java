@@ -120,4 +120,10 @@ public class DrpController {
         main.put("app", rssService.overviewApp());
         return main;
     }
+
+    // 应用实时状态
+    @GetMapping("/appinfo")
+    public JSONArray getAppInfo() {
+        return rssService.overviewApp();
+    }
 }

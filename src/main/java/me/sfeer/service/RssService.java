@@ -3,15 +3,23 @@ package me.sfeer.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import me.sfeer.mapper.RssMapper;
+import me.sfeer.mapper.ZabbixApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.*;
 
 @Service
 public class RssService {
+    private static final Logger log = LoggerFactory.getLogger(RssService.class);
 
     @Resource
     private RssMapper rssMapper;
+
+    @Resource
+    private ZabbixApi zabbixApi;
 
     private JSONArray loopCate(String parent) {
         JSONArray x = new JSONArray();
@@ -195,15 +203,83 @@ public class RssService {
     }
 
     // 应用概览
-    public JSONObject overviewApp() {
-        JSONObject res = new JSONObject();
+    public JSONArray overviewApp() {
+        JSONArray res = new JSONArray();
 
-        // TODO 应用链路监控概览
+        // 应用链路监控概览
+        res.addAll(rssMapper.appRpaLinkInfo());
 
         // 应用性能监控概览
-        for(JSONObject o : rssMapper.appMonitorInfo()) {
-            // TODO 根据hostid查询cpu/memory, 多个hostid取平均值
+        Set<String> hostIds = new HashSet<>();
+        Map<String, String> appHost = new HashMap<>();
+        Map<String, JSONObject> appInfo = new HashMap<>();
+        for (JSONObject o : rssMapper.appMonitorInfo()) {
+            String app = o.getString("app"); // 应用uuid
+            String host = o.getString("host"); // 监控主机id
+            String type = o.getString("type"); // 应用类型
+            if (host != null) {
+                if (appHost.containsKey(app)) {
+                    appHost.put(app, appHost.get(app) + ',' + host);
+                } else {
+                    appHost.put(app, host);
+                }
+                hostIds.add(host);
+            }
+            appInfo.put(app, JSONObject.parseObject("{\"type\":\"" + type + "\",\"app\":\"" + app + "\"}"));
         }
+
+        // 根据hostid查询cpu/memory
+        Map<String, JSONObject> hostInfo = new HashMap<>();
+        JSONArray items = zabbixApi.getHostsPerformance(hostIds.toArray(new String[hostIds.size()]));
+        for (int i = 0; i < items.size(); i++) {
+            JSONObject o = items.getJSONObject(i);
+            String key = o.getString("key_");
+            String hostid = o.getString("hostid");
+            String lastvalue = o.getString("lastvalue");
+            JSONObject info = hostInfo.containsKey(hostid) ? hostInfo.get(hostid) : new JSONObject();
+            if ("vm.memory.size[available]".equals(key))
+                info.put("free.memory", lastvalue);
+            else if ("vm.memory.size[total]".equals(key))
+                info.put("total.memory", lastvalue);
+            else if ("system.cpu.util[,idle]".equals(key))
+                info.put("cpu", lastvalue);
+            else if ("system.stat[cpu,id]".equals(key))
+                info.put("cpu", lastvalue);
+            hostInfo.put(hostid, info);
+        }
+
+        for (String app : appInfo.keySet()) {
+            JSONObject info = appInfo.get(app);
+            // 应用节点对应的监控主机
+            if (appHost.containsKey(app)) {
+                String[] arr = appHost.get(app).split(",");
+                if (arr.length > 1) {
+                    // 多节点, 取平均值
+                    float a = 0.0f, b = 0.0f;
+                    for (int i = 0; i < arr.length; i++) {
+                        JSONObject hh = hostInfo.get(arr[i]);
+                        a += hh.getFloatValue("cpu");
+                        b += hh.getFloatValue("free.memory") / hh.getFloatValue("total.memory") * 100.0;
+                    }
+                    info.put("cpu", String.format("%.2f", 100 - a / arr.length));
+                    info.put("memory", String.format("%.2f", 100 - b / arr.length));
+                } else {
+                    // 单节点
+                    JSONObject hh = hostInfo.get(arr[0]);
+                    float a = hh.getFloatValue("cpu");
+                    float b = hh.getFloatValue("free.memory");
+                    float c = hh.getFloatValue("total.memory");
+                    info.put("cpu", String.format("%.2f", 100 - a));
+                    info.put("memory", String.format("%.2f", 100 - b / c * 100.0));
+                }
+                info.put("status", "01");
+            } else {
+                // 应用未监控
+                info.put("status", "03");
+            }
+            res.add(info);
+        }
+
         return res;
     }
 }
