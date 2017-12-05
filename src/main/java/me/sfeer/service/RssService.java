@@ -148,6 +148,10 @@ public class RssService {
     public JSONObject overviewNode() {
         JSONObject res = new JSONObject();
         int linux1 = 0, linux2 = 0, other1 = 0, other2 = 0;
+        res.put("physics.aix", 0);
+        res.put("physics.windows", 0);
+        res.put("virtual.aix", 0);
+        res.put("virtual.windows", 0);
         for (JSONObject o : rssMapper.overviewNode()) {
             if ("cate_node_physics".equals(o.getString("cate"))) {
                 if (o.getString("os").endsWith("aix"))
