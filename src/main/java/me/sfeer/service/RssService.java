@@ -81,7 +81,7 @@ public class RssService {
         res.put("pjsd", String.format("%.2f", sd / num2));
 
         // 链路信息
-        // TODO 国家局链路传输速率，行业单位链路数量
+        // TODO 国家局链路传输速率，行业单位链路数量（网络链路速率从主交换机端口获取监控数据）
         return res;
     }
 
@@ -242,6 +242,10 @@ public class RssService {
         // 应用性能监控概览
         Set<String> hostIds = new HashSet<>();
         Map<String, String> appHost = new HashMap<>();
+
+        // TODO 根据讨论结果是否关联表里有Appid关联Hostid的属性
+        // TODO 如果有不需要通过Nodeid去关联Hostid
+
         for (JSONObject o : rssMapper.appMonitorInfo()) {
             String app = o.getString("app"); // 应用uuid
             String host = o.getString("host"); // 监控主机id
