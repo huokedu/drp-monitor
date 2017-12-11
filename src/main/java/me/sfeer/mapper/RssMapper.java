@@ -116,34 +116,47 @@ public interface RssMapper {
 
     // 生产、辅助、测试应用的监控概览信息
     @Select("SELECT\n" +
-            "  m.hostid AS host,\n" +
-            "  d.rss_uuid AS node,\n" +
-            "  d.attr_value AS type,\n" +
+            "  c.rss_uuid        AS node,\n" +
+            "  a.rss_uuid        AS midware,\n" +
+            "  d.attr_value      AS type,\n" +
             "  a.target_rss_uuid AS app\n" +
-            "FROM drp_rm_multi_rss_relate a, drp_rm_multi_rss_relate b,\n" +
-            "  drp_rm_multi_rss_relate c, drp_rm_multi_rss_attr d\n" +
-            "  LEFT JOIN drp_rm_monitor m ON d.rss_uuid = m.rss_uuid\n" +
+            "FROM (drp_rm_multi_rss_relate a, drp_rm_multi_rss_relate b,\n" +
+            "  drp_rm_multi_rss_relate c, drp_rm_multi_rss_attr d)\n" +
             "WHERE a.rss_uuid = b.rss_uuid\n" +
             "      AND b.target_rss_uuid = c.target_rss_uuid\n" +
             "      AND a.target_rss_uuid = d.rss_uuid\n" +
             "      AND a.target_category_uuid = 'cate_application_country'\n" +
             "      AND a.category_uuid LIKE 'cate_service_midware_%'\n" +
             "      AND b.target_category_uuid = 'cate_service_midware_node'\n" +
-            "      AND c.category_uuid = 'cate_node_virtual'\n" +
+            "      AND c.category_uuid LIKE 'cate_node_%'\n" +
             "      AND d.attr_uuid = 'attr_application_use'\n" +
-            "      AND d.attr_value IN ('03', '04', '05')")
+            "      AND d.attr_value IN ('02', '03', '04', '05')\n" +
+            "ORDER BY a.target_rss_uuid")
     List<JSONObject> appMonitorInfo();
 
     // 容灾复制、容灾转运行的监控概览信息
     @Select("SELECT\n" +
-            "  rss_uuid AS app,\n" +
-            "  attr_value AS type,\n" +
-            "  ROUND(RAND(),2)*100 AS speed,\n" +
-            "  '01' AS status\n" +
-            "FROM drp_rm_multi_rss_attr\n" +
-            "WHERE attr_uuid = 'attr_application_use'\n" +
-            "      AND attr_value IN ('01', '02')")
+            "  a.rss_uuid AS app,\n" +
+            "  a.attr_value AS type,\n" +
+            "  b.attr_value AS `group`\n" +
+            "FROM drp_rm_multi_rss_attr a, drp_rm_multi_rss_attr b\n" +
+            "WHERE a.attr_uuid = 'attr_application_use'\n" +
+            "      AND a.attr_value IN ('01', '02')\n" +
+            "      AND a.rss_uuid = b.rss_uuid\n" +
+            "      AND b.attr_uuid = 'attr_application_volume_group_name'")
     List<JSONObject> appRpaLinkInfo();
+
+    // RPA复制情况
+    @Select("SELECT\n" +
+            "  data_group AS `group`,\n" +
+            "  data_name AS name,\n" +
+            "  data_value AS value\n" +
+            "FROM drp_mt_loncom_data\n" +
+            "WHERE data_name IN ('WAN traffic', 'Data Transfer') AND data_type = 'RPA'\n" +
+            "GROUP BY data_group, data_name\n" +
+            "ORDER BY timestamp DESC;")
+    List<JSONObject> appRpaCopyInfo();
+
 
     // 新增资源和监控对象关联
     @Insert("insert into drp_rm_monitor(rss_uuid,hostid) values (#{rssId},#{id})")
@@ -151,5 +164,5 @@ public interface RssMapper {
 
     // 查询资源对应监控对象
     @Select("select hostid from drp_rm_monitor where rss_uuid=#{uuid}")
-    String getHostByRss(@Param("uuid") String uuid);
+    List<String> getHostByRss(@Param("uuid") String uuid);
 }

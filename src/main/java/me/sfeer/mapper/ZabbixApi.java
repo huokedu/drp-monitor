@@ -10,6 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class ZabbixApi {
     private static final Logger log = LoggerFactory.getLogger(ZabbixApi.class);
@@ -91,7 +94,7 @@ public class ZabbixApi {
         return res;
     }
 
-    public JSONArray getHosts(String name) {
+    public JSONArray getHostsByName(String name) {
         io.github.hengyunabc.zabbix.api.ZabbixApi zabbixApi = new DefaultZabbixApi(url);
         zabbixApi.init();
         zabbixApi.login(username, password);
@@ -198,7 +201,7 @@ public class ZabbixApi {
         return res;
     }
 
-    public Host getHostByRss(String hostId) {
+    public List<Host> getHostsByIds(String[] hostids) {
         io.github.hengyunabc.zabbix.api.ZabbixApi zabbixApi = new DefaultZabbixApi(url);
         zabbixApi.init();
         zabbixApi.login(username, password);
@@ -208,19 +211,24 @@ public class ZabbixApi {
                 .paramEntry("selectInterfaces", new String[]{"ip", "port", "type"})
                 .paramEntry("selectParentTemplates", new String[]{"groupid"})
                 .paramEntry("output", new String[]{"hostid", "name", "host"})
-                .paramEntry("hostids", hostId);
-        JSONObject res = zabbixApi.call(req.build()).getJSONArray("result").getJSONObject(0);
+                .paramEntry("hostids", hostids);
+        JSONArray res = zabbixApi.call(req.build()).getJSONArray("result");
         zabbixApi.destroy();
-        Host host = new Host();
-        host.setId(res.getLong("hostid"));
-        host.setHost(res.getString("host"));
-        host.setName(res.getString("name"));
-        host.setTemplateId(res.getJSONArray("parentTemplates").getJSONObject(0).getLong("templateid"));
-        host.setGroupId(res.getJSONArray("groups").getJSONObject(0).getLong("groupid"));
-        host.setIp(res.getJSONArray("interfaces").getJSONObject(0).getString("ip"));
-        host.setPort(res.getJSONArray("interfaces").getJSONObject(0).getString("port"));
-        host.setType(res.getJSONArray("interfaces").getJSONObject(0).getInteger("type"));
-        return host;
+        List<Host> list = new ArrayList<>();
+        for (int i = 0; i < res.size(); i++) {
+            JSONObject o = res.getJSONObject(i);
+            Host host = new Host();
+            host.setId(o.getLong("hostid"));
+            host.setHost(o.getString("host"));
+            host.setName(o.getString("name"));
+            host.setTemplateId(o.getJSONArray("parentTemplates").getJSONObject(0).getLong("templateid"));
+            host.setGroupId(o.getJSONArray("groups").getJSONObject(0).getLong("groupid"));
+            host.setIp(o.getJSONArray("interfaces").getJSONObject(0).getString("ip"));
+            host.setPort(o.getJSONArray("interfaces").getJSONObject(0).getString("port"));
+            host.setType(o.getJSONArray("interfaces").getJSONObject(0).getInteger("type"));
+            list.add(host);
+        }
+        return list;
     }
 
     // 批量查询Host的cpu memory

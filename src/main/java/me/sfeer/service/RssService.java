@@ -210,13 +210,38 @@ public class RssService {
     public JSONArray overviewApp() {
         JSONArray res = new JSONArray();
 
+        // RPA链路复制情况
+        Map<String, JSONObject> copy = new HashMap<>();
+        for (JSONObject o : rssMapper.appRpaCopyInfo()) {
+            String group = o.getString("group");
+            String name = o.getString("name");
+            String value = o.getString("value");
+            JSONObject x = copy.containsKey(group) ? copy.get(group) : new JSONObject();
+            x.put(name, value);
+            copy.put(group, x);
+        }
+
         // 应用链路监控概览
-        res.addAll(rssMapper.appRpaLinkInfo());
+        Map<String, JSONObject> appInfo = new HashMap<>();
+        for (JSONObject o : rssMapper.appRpaLinkInfo()) {
+            String[] groups = o.getString("group").split(",");
+            boolean active = true;
+            int speed = 0;
+            for (int i = 0; i < groups.length; i++) {
+                JSONObject x = copy.get(groups[i]);
+                int sp = Integer.parseInt(x.getString("WAN traffic").split(" ")[0]);
+                boolean ac = "ACTIVE".equals(x.getString("Data Transfer"));
+                speed += sp;
+                active = active && ac;
+            }
+            o.put("active", active);
+            o.put("speed", speed);
+            appInfo.put(o.getString("app"), o);
+        }
 
         // 应用性能监控概览
         Set<String> hostIds = new HashSet<>();
         Map<String, String> appHost = new HashMap<>();
-        Map<String, JSONObject> appInfo = new HashMap<>();
         for (JSONObject o : rssMapper.appMonitorInfo()) {
             String app = o.getString("app"); // 应用uuid
             String host = o.getString("host"); // 监控主机id
@@ -229,7 +254,9 @@ public class RssService {
                 }
                 hostIds.add(host);
             }
-            appInfo.put(app, JSONObject.parseObject("{\"type\":\"" + type + "\",\"app\":\"" + app + "\"}"));
+            if (!appInfo.containsKey(app)) {
+                appInfo.put(app, JSONObject.parseObject("{\"type\":\"" + type + "\",\"app\":\"" + app + "\"}"));
+            }
         }
 
         // 根据hostid查询cpu/memory

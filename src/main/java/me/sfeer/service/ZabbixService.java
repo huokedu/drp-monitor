@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ZabbixService {
@@ -59,7 +61,7 @@ public class ZabbixService {
     }
 
     public JSONArray getHosts(String name) {
-        return zabbixApi.getHosts(name);
+        return zabbixApi.getHostsByName(name);
     }
 
     public JSONArray getHistoryData(String ids, Integer type, Integer begin, Integer end) {
@@ -86,9 +88,8 @@ public class ZabbixService {
         return zabbixApi.getHostList(id);
     }
 
-    public Host getHostByRss(String uuid) {
-        Host host = zabbixApi.getHostByRss(rssMapper.getHostByRss(uuid));
-        host.setRssId(uuid);
-        return host;
+    public List<Host> getHostByRss(String uuid) {
+        List<String> hostIds = rssMapper.getHostByRss(uuid);
+        return zabbixApi.getHostsByIds(hostIds.toArray(new String[hostIds.size()]));
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.List;
 import java.util.Map;
 
 
@@ -57,7 +58,7 @@ public class ZabbixController {
 
     // 根据资源id获取host
     @GetMapping("/host/rss/{uuid}")
-    public Host getHostByRss(@PathVariable String uuid) {
+    public List<Host> getHostByRss(@PathVariable String uuid) {
         return zabbixService.getHostByRss(uuid);
     }
 
