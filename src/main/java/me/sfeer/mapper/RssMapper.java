@@ -116,12 +116,13 @@ public interface RssMapper {
 
     // 生产、辅助、测试应用的监控概览信息
     @Select("SELECT\n" +
-            "  c.rss_uuid        AS node,\n" +
-            "  a.rss_uuid        AS midware,\n" +
+            "  n.hostid          AS host,\n" +
             "  d.attr_value      AS type,\n" +
-            "  a.target_rss_uuid AS app\n" +
+            "  a.target_rss_uuid AS app,\n" +
+            "  'node'            AS flag\n" +
             "FROM (drp_rm_multi_rss_relate a, drp_rm_multi_rss_relate b,\n" +
             "  drp_rm_multi_rss_relate c, drp_rm_multi_rss_attr d)\n" +
+            "  LEFT JOIN drp_rm_monitor n ON c.rss_uuid = n.rss_uuid\n" +
             "WHERE a.rss_uuid = b.rss_uuid\n" +
             "      AND b.target_rss_uuid = c.target_rss_uuid\n" +
             "      AND a.target_rss_uuid = d.rss_uuid\n" +
@@ -131,7 +132,21 @@ public interface RssMapper {
             "      AND c.category_uuid LIKE 'cate_node_%'\n" +
             "      AND d.attr_uuid = 'attr_application_use'\n" +
             "      AND d.attr_value IN ('02', '03', '04', '05')\n" +
-            "ORDER BY a.target_rss_uuid")
+            "UNION ALL\n" +
+            "SELECT\n" +
+            "  m.hostid          AS host,\n" +
+            "  d.attr_value      AS type,\n" +
+            "  a.target_rss_uuid AS app,\n" +
+            "  'midware'         AS flag\n" +
+            "FROM (drp_rm_multi_rss_relate a, drp_rm_multi_rss_attr d, drp_rm_multi_rss_relate b)\n" +
+            "  LEFT JOIN drp_rm_monitor m ON b.target_rss_uuid = m.rss_uuid\n" +
+            "WHERE a.target_rss_uuid = d.rss_uuid\n" +
+            "      AND a.rss_uuid = b.rss_uuid\n" +
+            "      AND b.target_category_uuid = 'cate_service_midware_node'\n" +
+            "      AND a.target_category_uuid = 'cate_application_country'\n" +
+            "      AND a.category_uuid LIKE 'cate_service_midware_%'\n" +
+            "      AND d.attr_uuid = 'attr_application_use'\n" +
+            "      AND d.attr_value IN ('02', '03', '04', '05')")
     List<JSONObject> appMonitorInfo();
 
     // 容灾复制、容灾转运行的监控概览信息

@@ -228,44 +228,67 @@ public class RssService {
             boolean active = true;
             int speed = 0;
             for (int i = 0; i < groups.length; i++) {
-                JSONObject x = copy.get(groups[i]);
-                int sp = Integer.parseInt(x.getString("WAN traffic").split(" ")[0]);
-                boolean ac = "ACTIVE".equals(x.getString("Data Transfer"));
-                speed += sp;
-                active = active && ac;
+                if (copy.containsKey(groups[i])) {
+                    JSONObject x = copy.get(groups[i]);
+                    int sp = Integer.parseInt(x.getString("WAN traffic").split(" ")[0]);
+                    boolean ac = "ACTIVE".equals(x.getString("Data Transfer"));
+                    speed += sp;
+                    active = active && ac;
+                }
             }
             o.put("active", active);
             o.put("speed", speed);
             appInfo.put(o.getString("app"), o);
         }
 
-        // 应用性能监控概览
-        Set<String> hostIds = new HashSet<>();
-        Map<String, String> appHost = new HashMap<>();
-
-        // TODO 根据讨论结果是否关联表里有Appid关联Hostid的属性
-        // TODO 如果有不需要通过Nodeid去关联Hostid
-
+        // 应用运行状况监控概览
+        Set<String> mHost = new HashSet<>(); // 中间件监控主机
+        Map<String, String> appMHost = new HashMap<>();
+        Set<String> nHost = new HashSet<>(); // 中间件所属节点监控主机
+        Map<String, String> appNHost = new HashMap<>();
         for (JSONObject o : rssMapper.appMonitorInfo()) {
             String app = o.getString("app"); // 应用uuid
             String host = o.getString("host"); // 监控主机id
             String type = o.getString("type"); // 应用类型
+            String flag = o.getString("flag");
             if (host != null) {
-                if (appHost.containsKey(app)) {
-                    appHost.put(app, appHost.get(app) + ',' + host);
-                } else {
-                    appHost.put(app, host);
+                if ("midware".equals(flag)) {
+                    if (appMHost.containsKey(app)) {
+                        appMHost.put(app, appMHost.get(app) + ',' + host);
+                    } else {
+                        appMHost.put(app, host);
+                    }
+                    mHost.add(host);
+                } else if ("node".equals(flag)) {
+                    if (appNHost.containsKey(app)) {
+                        appNHost.put(app, appNHost.get(app) + ',' + host);
+                    } else {
+                        appNHost.put(app, host);
+                    }
+                    nHost.add(host);
                 }
-                hostIds.add(host);
             }
             if (!appInfo.containsKey(app)) {
                 appInfo.put(app, JSONObject.parseObject("{\"type\":\"" + type + "\",\"app\":\"" + app + "\"}"));
             }
         }
 
-        // 根据hostid查询cpu/memory
+        // 根据hostid查询运行状态
         Map<String, JSONObject> hostInfo = new HashMap<>();
-        JSONArray items = zabbixApi.getHostsPerformance(hostIds.toArray(new String[hostIds.size()]));
+        JSONArray items = zabbixApi.getHostsMidwareStatus(mHost.toArray(new String[mHost.size()]));
+        for (int i = 0; i < items.size(); i++) {
+            JSONObject o = items.getJSONObject(i);
+            String key = o.getString("key_");
+            String hostid = o.getString("hostid");
+            String lastvalue = o.getString("lastvalue");
+            JSONObject info = hostInfo.containsKey(hostid) ? hostInfo.get(hostid) : new JSONObject();
+            if ("net.tcp.service[http,{$WAS_HOST},{$WAS_PORT}]".equals(key))
+                info.put("status", lastvalue);
+            hostInfo.put(hostid, info);
+        }
+
+        // 根据hostid查询cpu/memory
+        items = zabbixApi.getHostsPerformance(nHost.toArray(new String[nHost.size()]));
         for (int i = 0; i < items.size(); i++) {
             JSONObject o = items.getJSONObject(i);
             String key = o.getString("key_");
@@ -285,33 +308,63 @@ public class RssService {
 
         for (String app : appInfo.keySet()) {
             JSONObject info = appInfo.get(app);
-            // 应用节点对应的监控主机
-            if (appHost.containsKey(app)) {
-                String[] arr = appHost.get(app).split(",");
+
+            // 应用对应的中间件监控主机
+            if (appMHost.containsKey(app)) {
+                String[] arr = appMHost.get(app).split(",");
+                if (arr.length > 1) {
+                    // 多节点
+                    boolean ok = true;
+                    for (int i = 0; i < arr.length; i++) {
+                        if (hostInfo.containsKey(arr[i])) {
+                            JSONObject hh = hostInfo.get(arr[i]);
+                            ok = ok & hh.getIntValue("status") != 0;
+                        }
+                    }
+                    info.put("status", ok ? "01" : "02");
+                } else if (arr.length == 1) {
+                    // 单节点
+                    if (hostInfo.containsKey(arr[0])) {
+                        JSONObject hh = hostInfo.get(arr[0]);
+                        info.put("status", hh.getIntValue("status") == 0 ? "02" : "01");
+                    }
+                }
+            }
+
+            // 应用对应的中间件所属节点监控主机
+            if (appNHost.containsKey(app)) {
+                String[] arr = appNHost.get(app).split(",");
                 if (arr.length > 1) {
                     // 多节点, 取平均值
-                    float a = 0.0f, b = 0.0f;
+                    float a = 0, b = 0, c = 0, d = 0;
                     for (int i = 0; i < arr.length; i++) {
-                        JSONObject hh = hostInfo.get(arr[i]);
-                        a += hh.getFloatValue("cpu");
-                        b += hh.getFloatValue("free.memory") / hh.getFloatValue("total.memory") * 100.0;
+                        if (hostInfo.containsKey(arr[i])) {
+                            JSONObject hh = hostInfo.get(arr[i]);
+                            if (hh.getFloatValue("cpu") > 0) {
+                                a += hh.getFloatValue("cpu");
+                                b += 100;
+                            }
+                            if (hh.getFloatValue("total.memory") > 0) {
+                                c += hh.getFloatValue("free.memory");
+                                d += hh.getFloatValue("total.memory");
+                            }
+                        }
                     }
-                    info.put("cpu", String.format("%.2f", 100 - a / arr.length));
-                    info.put("memory", String.format("%.2f", 100 - b / arr.length));
-                } else {
+                    info.put("cpu", a > 0 ? (float) (Math.round((100 - a * 100 / b) * 100)) / 100 : 0.00f);
+                    info.put("memory", c > 0 ? (float) (Math.round((100 - c * 100 / d) * 100)) / 100 : 0.00f);
+                } else if (arr.length == 1) {
                     // 单节点
-                    JSONObject hh = hostInfo.get(arr[0]);
-                    float a = hh.getFloatValue("cpu");
-                    float b = hh.getFloatValue("free.memory");
-                    float c = hh.getFloatValue("total.memory");
-                    info.put("cpu", String.format("%.2f", 100 - a));
-                    info.put("memory", String.format("%.2f", 100 - b / c * 100.0));
+                    if (hostInfo.containsKey(arr[0])) {
+                        JSONObject hh = hostInfo.get(arr[0]);
+                        float a = hh.getFloatValue("cpu");
+                        float c = hh.getFloatValue("free.memory");
+                        float d = hh.getFloatValue("total.memory");
+                        info.put("cpu", a > 0 ? (float) (Math.round((100 - a) * 100)) / 100 : 0.00f);
+                        info.put("memory", c > 0 ? (float) (Math.round((100 - c * 100 / d) * 100)) / 100 : 0.00f);
+                    }
                 }
-                info.put("status", "01");
-            } else {
-                // 应用未监控
-                info.put("status", "03");
             }
+
             res.add(info);
         }
 

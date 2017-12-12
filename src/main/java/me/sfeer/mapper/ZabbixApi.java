@@ -246,4 +246,20 @@ public class ZabbixApi {
         zabbixApi.destroy();
         return res;
     }
+
+    // 批量查询Host的was状态
+    public JSONArray getHostsMidwareStatus(String[] hostids) {
+        io.github.hengyunabc.zabbix.api.ZabbixApi zabbixApi = new DefaultZabbixApi(url);
+        zabbixApi.init();
+        zabbixApi.login(username, password);
+        RequestBuilder req = RequestBuilder.newBuilder()
+                .method("item.get")
+                .paramEntry("output", new String[]{"hostid", "key_", "lastvalue"})
+                .paramEntry("hostids", hostids)
+                .paramEntry("filter", JSONObject.parse("{\"key_\":\"net.tcp.service[http,{$WAS_HOST},{$WAS_PORT}]\"}"))
+                .paramEntry("sortfield", "name");
+        JSONArray res = zabbixApi.call(req.build()).getJSONArray("result");
+        zabbixApi.destroy();
+        return res;
+    }
 }
