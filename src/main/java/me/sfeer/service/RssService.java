@@ -227,9 +227,9 @@ public class RssService {
             String[] groups = o.getString("group").split(",");
             boolean active = true;
             int speed = 0;
-            for (int i = 0; i < groups.length; i++) {
-                if (copy.containsKey(groups[i])) {
-                    JSONObject x = copy.get(groups[i]);
+            for (String s : groups) {
+                if (copy.containsKey(s)) {
+                    JSONObject x = copy.get(s);
                     int sp = Integer.parseInt(x.getString("WAN traffic").split(" ")[0]);
                     boolean ac = "ACTIVE".equals(x.getString("Data Transfer"));
                     speed += sp;
@@ -315,9 +315,9 @@ public class RssService {
                 if (arr.length > 1) {
                     // 多节点
                     boolean ok = true;
-                    for (int i = 0; i < arr.length; i++) {
-                        if (hostInfo.containsKey(arr[i])) {
-                            JSONObject hh = hostInfo.get(arr[i]);
+                    for (String s : arr) {
+                        if (hostInfo.containsKey(s)) {
+                            JSONObject hh = hostInfo.get(s);
                             ok = ok & hh.getIntValue("status") != 0;
                         }
                     }
@@ -337,9 +337,9 @@ public class RssService {
                 if (arr.length > 1) {
                     // 多节点, 取平均值
                     float a = 0, b = 0, c = 0, d = 0;
-                    for (int i = 0; i < arr.length; i++) {
-                        if (hostInfo.containsKey(arr[i])) {
-                            JSONObject hh = hostInfo.get(arr[i]);
+                    for (String s : arr) {
+                        if (hostInfo.containsKey(s)) {
+                            JSONObject hh = hostInfo.get(s);
                             if (hh.getFloatValue("cpu") > 0) {
                                 a += hh.getFloatValue("cpu");
                                 b += 100;
