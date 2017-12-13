@@ -225,6 +225,7 @@ public class RssService {
         Map<String, JSONObject> appInfo = new HashMap<>();
         for (JSONObject o : rssMapper.appRpaLinkInfo()) {
             String[] groups = o.getString("group").split(",");
+            o.put("active", "03"); // 初始化03
             boolean active = true;
             int speed = 0;
             for (String s : groups) {
@@ -233,11 +234,10 @@ public class RssService {
                     int sp = Integer.parseInt(x.getString("WAN traffic").split(" ")[0]);
                     boolean ac = "ACTIVE".equals(x.getString("Data Transfer"));
                     speed += sp;
-                    active = active && ac;
+                    o.put("active", active && ac ? "01" : "02");
+                    o.put("speed", speed);
                 }
             }
-            o.put("active", active);
-            o.put("speed", speed);
             appInfo.put(o.getString("app"), o);
         }
 
@@ -308,6 +308,8 @@ public class RssService {
 
         for (String app : appInfo.keySet()) {
             JSONObject info = appInfo.get(app);
+
+            info.put("status", "03");
 
             // 应用对应的中间件监控主机
             if (appMHost.containsKey(app)) {
