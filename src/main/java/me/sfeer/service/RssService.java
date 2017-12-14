@@ -234,8 +234,9 @@ public class RssService {
                     int sp = Integer.parseInt(x.getString("WAN traffic").split(" ")[0]);
                     boolean ac = "ACTIVE".equals(x.getString("Data Transfer"));
                     speed += sp;
-                    o.put("active", active && ac ? "01" : "02");
                     o.put("speed", speed);
+                    active = active && ac;
+                    o.put("active", active ? "01" : "02");
                 }
             }
             appInfo.put(o.getString("app"), o);
@@ -249,6 +250,7 @@ public class RssService {
         for (JSONObject o : rssMapper.appMonitorInfo()) {
             String app = o.getString("app"); // 应用uuid
             String host = o.getString("host"); // 监控主机id
+            String name = o.getString("name");
             String type = o.getString("type"); // 应用类型
             String flag = o.getString("flag");
             if (host != null) {
@@ -271,6 +273,7 @@ public class RssService {
             if (!appInfo.containsKey(app)) {
                 JSONObject x = new JSONObject();
                 x.put("app", app);
+                x.put("name", name);
                 x.put("type", type);
                 x.put("status", "03");
                 appInfo.put(app, x);

@@ -119,11 +119,13 @@ public interface RssMapper {
             "  n.hostid          AS host,\n" +
             "  d.attr_value      AS type,\n" +
             "  a.target_rss_uuid AS app,\n" +
+            "  e.rss_name        AS name,\n" +
             "  'node'            AS flag\n" +
             "FROM (drp_rm_multi_rss_relate a, drp_rm_multi_rss_relate b,\n" +
-            "  drp_rm_multi_rss_relate c, drp_rm_multi_rss_attr d)\n" +
+            "  drp_rm_multi_rss_relate c, drp_rm_multi_rss_attr d, drp_rm_rss e)\n" +
             "  LEFT JOIN drp_rm_monitor n ON c.rss_uuid = n.rss_uuid\n" +
             "WHERE a.rss_uuid = b.rss_uuid\n" +
+            "      AND a.target_rss_uuid = e.rss_uuid\n" +
             "      AND b.target_rss_uuid = c.target_rss_uuid\n" +
             "      AND a.target_rss_uuid = d.rss_uuid\n" +
             "      AND a.target_category_uuid = 'cate_application_country'\n" +
@@ -137,10 +139,12 @@ public interface RssMapper {
             "  m.hostid          AS host,\n" +
             "  d.attr_value      AS type,\n" +
             "  a.target_rss_uuid AS app,\n" +
+            "  e.rss_name        AS name,\n" +
             "  'midware'         AS flag\n" +
-            "FROM (drp_rm_multi_rss_relate a, drp_rm_multi_rss_attr d, drp_rm_multi_rss_relate b)\n" +
+            "FROM (drp_rm_multi_rss_relate a, drp_rm_multi_rss_attr d, drp_rm_multi_rss_relate b, drp_rm_rss e)\n" +
             "  LEFT JOIN drp_rm_monitor m ON b.target_rss_uuid = m.rss_uuid\n" +
             "WHERE a.target_rss_uuid = d.rss_uuid\n" +
+            "      AND a.target_rss_uuid = e.rss_uuid\n" +
             "      AND a.rss_uuid = b.rss_uuid\n" +
             "      AND b.target_category_uuid = 'cate_service_midware_node'\n" +
             "      AND a.target_category_uuid = 'cate_application_country'\n" +
@@ -151,13 +155,15 @@ public interface RssMapper {
 
     // 容灾复制、容灾转运行的监控概览信息
     @Select("SELECT\n" +
-            "  a.rss_uuid AS app,\n" +
+            "  a.rss_uuid   AS app,\n" +
+            "  c.rss_name   AS name,\n" +
             "  a.attr_value AS type,\n" +
             "  b.attr_value AS `group`\n" +
-            "FROM drp_rm_multi_rss_attr a, drp_rm_multi_rss_attr b\n" +
+            "FROM drp_rm_multi_rss_attr a, drp_rm_multi_rss_attr b, drp_rm_rss c\n" +
             "WHERE a.attr_uuid = 'attr_application_use'\n" +
             "      AND a.attr_value IN ('01', '02')\n" +
             "      AND a.rss_uuid = b.rss_uuid\n" +
+            "      AND a.rss_uuid = c.rss_uuid\n" +
             "      AND b.attr_uuid = 'attr_application_volume_group_name'")
     List<JSONObject> appRpaLinkInfo();
 
