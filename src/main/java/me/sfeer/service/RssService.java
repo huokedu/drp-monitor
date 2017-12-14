@@ -269,7 +269,11 @@ public class RssService {
                 }
             }
             if (!appInfo.containsKey(app)) {
-                appInfo.put(app, JSONObject.parseObject("{\"type\":\"" + type + "\",\"app\":\"" + app + "\"}"));
+                JSONObject x = new JSONObject();
+                x.put("app", app);
+                x.put("type", type);
+                x.put("status", "03");
+                appInfo.put(app, x);
             }
         }
 
@@ -308,8 +312,6 @@ public class RssService {
 
         for (String app : appInfo.keySet()) {
             JSONObject info = appInfo.get(app);
-
-            info.put("status", "03");
 
             // 应用对应的中间件监控主机
             if (appMHost.containsKey(app)) {
