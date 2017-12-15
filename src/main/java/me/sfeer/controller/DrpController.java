@@ -126,4 +126,10 @@ public class DrpController {
     public JSONArray getAppInfo() {
         return rssService.overviewApp();
     }
+
+    // 根据资源池ID查询所属节点信息
+    @GetMapping("/pool/{uuid}/nodes")
+    public List<JSONObject> getNodesByPool(@PathVariable String uuid) {
+        return rssService.getNodesByPool(uuid);
+    }
 }

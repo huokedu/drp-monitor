@@ -377,4 +377,8 @@ public class RssService {
 
         return res;
     }
+
+    public List<JSONObject> getNodesByPool(String uuid) {
+        return rssMapper.getNodesByPool(uuid);
+    }
 }

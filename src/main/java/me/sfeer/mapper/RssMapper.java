@@ -1,5 +1,6 @@
 package me.sfeer.mapper;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import me.sfeer.domain.Host;
 import org.apache.ibatis.annotations.Insert;
@@ -186,4 +187,23 @@ public interface RssMapper {
     // 查询资源对应监控对象
     @Select("select hostid from drp_rm_monitor where rss_uuid=#{uuid}")
     List<String> getHostByRss(@Param("uuid") String uuid);
+
+    @Select("SELECT\n" +
+            "  a.rss_uuid,\n" +
+            "  b.brand_uuid,\n" +
+            "  b.rss_name,\n" +
+            "  a.attr_uuid,\n" +
+            "  a.attr_value\n" +
+            "FROM\n" +
+            "  drp_rm_multi_rss_attr a, drp_rm_rss b\n" +
+            "WHERE a.status = 01 AND a.rss_uuid = b.rss_uuid AND a.rss_uuid IN (\n" +
+            "  SELECT target_rss_uuid\n" +
+            "  FROM drp_rm_multi_rss_relate\n" +
+            "  WHERE rss_uuid IN (\n" +
+            "    SELECT target_rss_uuid\n" +
+            "    FROM drp_rm_multi_rss_relate\n" +
+            "    WHERE rss_uuid = #{uuid}\n" +
+            "  )\n" +
+            ")")
+    List<JSONObject> getNodesByPool(@Param("uuid") String uuid);
 }
