@@ -208,15 +208,19 @@ public interface RssMapper {
     List<JSONObject> getNodesByPool(@Param("uuid") String uuid);
 
     @Select("SELECT\n" +
-            "  m.hostid AS host,\n" +
-            "  b.rss_uuid AS db,\n" +
-            "  d.target_rss_uuid AS inst\n" +
-            "FROM (drp_rm_multi_rss_relate b, drp_rm_multi_rss_relate c, drp_rm_multi_rss_relate d)\n" +
+            "  m.hostid          AS host,\n" +
+            "  d.target_rss_uuid AS inst,\n" +
+            "  a.rss_name        AS name\n" +
+            "FROM (drp_rm_rss a, drp_rm_multi_rss_relate b, drp_rm_multi_rss_relate c, drp_rm_multi_rss_relate d)\n" +
             "  LEFT JOIN drp_rm_monitor m ON d.target_rss_uuid = m.rss_uuid\n" +
             "WHERE b.target_rss_uuid = c.rss_uuid\n" +
             "      AND c.target_rss_uuid = d.rss_uuid\n" +
-            "      AND b.rss_uuid = #{uuid}\n" +
+            "      AND a.rss_uuid = d.target_rss_uuid\n" +
+            "      AND b.rss_uuid = '1E122372DEA340AE89C3C10C29B7D97F'\n" +
             "      AND b.target_category_uuid LIKE 'cate_service_db_node_%'\n" +
             "      AND c.target_category_uuid LIKE 'cate_service_db_users_%'")
     List<JSONObject> getHostIdsByDb(@Param("uuid") String uuid);
+
+
+    List<JSONObject> getHostIdsByMid(String uuid);
 }
