@@ -132,4 +132,11 @@ public class DrpController {
     public List<JSONObject> getNodesByPool(@PathVariable String uuid) {
         return rssService.getNodesByPool(uuid);
     }
+
+    // 根据数据库服务查找关联数据库监控hostid
+    @GetMapping("/db/{uuid}/monitor")
+    public List<JSONObject> getHostIdsByDb(@PathVariable String uuid) {
+        return rssService.getHostIdsByDb(uuid);
+    }
+
 }
