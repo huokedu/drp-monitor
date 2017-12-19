@@ -386,7 +386,7 @@ public class RssService {
         return rssMapper.getHostIdsByDb(uuid);
     }
 
-    public List<JSONObject> getHostIdsByMid(String uuid) {
-        return rssMapper.getHostIdsByMid(uuid);
+    public List<JSONObject> getHostIdsByMw(String uuid) {
+        return rssMapper.getHostIdsByMw(uuid);
     }
 }

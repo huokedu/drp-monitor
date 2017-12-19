@@ -140,9 +140,9 @@ public class DrpController {
     }
 
     // 根据中间件服务查找关联节点监控hostid
-    @GetMapping("")
+    @GetMapping("/mw/{uuid}/monitor")
     public List<JSONObject> getHostIdsByMid(@PathVariable String uuid) {
-        return rssService.getHostIdsByMid(uuid);
+        return rssService.getHostIdsByMw(uuid);
     }
 
 }

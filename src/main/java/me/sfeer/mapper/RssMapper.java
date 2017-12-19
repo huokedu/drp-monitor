@@ -216,11 +216,20 @@ public interface RssMapper {
             "WHERE b.target_rss_uuid = c.rss_uuid\n" +
             "      AND c.target_rss_uuid = d.rss_uuid\n" +
             "      AND a.rss_uuid = d.target_rss_uuid\n" +
-            "      AND b.rss_uuid = '1E122372DEA340AE89C3C10C29B7D97F'\n" +
+            "      AND b.rss_uuid = #{uuid}\n" +
             "      AND b.target_category_uuid LIKE 'cate_service_db_node_%'\n" +
             "      AND c.target_category_uuid LIKE 'cate_service_db_users_%'")
     List<JSONObject> getHostIdsByDb(@Param("uuid") String uuid);
 
-
-    List<JSONObject> getHostIdsByMid(String uuid);
+    @Select("SELECT\n" +
+            "  m.hostid          AS host,\n" +
+            "  m.rss_name        AS hname,\n" +
+            "  b.target_rss_uuid AS node,\n" +
+            "  a.rss_name        AS name\n" +
+            "FROM (drp_rm_rss a, drp_rm_multi_rss_relate b)\n" +
+            "  LEFT JOIN drp_rm_monitor m ON b.target_rss_uuid = m.rss_uuid\n" +
+            "WHERE b.rss_uuid = #{uuid}\n" +
+            "      AND a.rss_uuid = b.target_rss_uuid\n" +
+            "      AND b.target_category_uuid = 'cate_service_midware_node'")
+    List<JSONObject> getHostIdsByMw(String uuid);
 }
